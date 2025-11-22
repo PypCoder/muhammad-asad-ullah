@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="style.css" />
+    <meta
+      name="description"
+      content="Portfolio of a Python Developer, ML Engineer, and AI Product enthusiast specializing in intelligent solutions."
+    />
+    <meta
+      name="keywords"
+      content="Python Developer, Machine Learning, AI, Web Development, Freelance Developer"
+    />
+    <script
+      type="module"
+      src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.3.0/model-viewer.min.js"
+    ></script>
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <script type="text/javascript"
+        src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js">
+    </script>
+    <script type="text/javascript">
+      (function(){
+          emailjs.init({
+            publicKey: "aVD1VQ-odTsKjYgYo",
+          });
+      })();
+    </script>
+    <title>Muhammad Asad Ullah - Python & ML Developer</title>
+  </head>
+  <body>
+
+    <!-- LOADING SCREEN -->
+    <div class="loading-screen" id="loadingScreen">
+      <div class="loader-content">
+        <div class="loader-logo">Muhammad Asad Ullah</div>
+        <div class="loader-spinner">
+          <div class="loader-dot"></div>
+          <div class="loader-dot"></div>
+          <div class="loader-dot"></div>
+        </div>
+        <div class="loader-progress">
+          <div class="loader-progress-bar" id="loadingProgress"></div>
+        </div>
+        <div class="loader-prompt">
+          <div class="loader-text">Welcome Aboard</div>
+          <button class="loader-action" id="enterBtn">
+            <span>Enter</span>
+            <span class="loader-action-icon">→</span>
+          </button>
+          <div class="swipe-hint">
+            <span class="swipe-icon">↑</span> Swipe up to enter
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RESUME COMING SOON MODAL -->
+    <div class="modal" id="resumeModal">
+      <div class="modal-content">
+        <button class="modal-close" id="modalClose">×</button>
+        <div class="modal-icon">📄</div>
+        <h2 class="modal-title">Coming Soon!</h2>
+        <p class="modal-description">
+          I'm currently crafting an amazing resume to showcase my journey and
+          achievements.
+          <!--Want to be notified when it's ready? -->
+        </p>
+        <p id="waitlistCount"></p>
+        <!-- <div class="modal-notify">
+          <input type="text" placeholder="John Doe" id="notifyName" />
+          <input type="email" placeholder="johndoe@email.com" id="notifyEmail" />
+          <button onclick="notifyMe()">Notify Me</button>
+        </div> -->
+        <p
+          style="
+            margin-top: 1.5rem;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+          "
+        >
+          In the meantime, feel free to
+          <a
+            href="#contact"
+            style="color: var(--accent-primary); font-weight: 600"
+            onclick="closeModal()"
+            >contact me directly</a
+          >!
+        </p>
+      </div>
+    </div>
+    <!-- Custom Cursor -->
+    <!-- <div class="custom-cursor"></div>
+    <div class="cursor-dot"></div> -->
+
+    <!-- Scroll Progress -->
+    <div class="scroll-progress"></div>
+
+    <!-- Easter Egg -->
+    <div class="easter-egg" id="easterEgg">
+      🎉 You've explored <span id="clickCount">0</span> sections!
+    </div>
+
+    <!-- NAVIGATION -->
+    <!-- <nav id="navbar">
+      <div class="nav-container">
+        <ul class="nav-links" id="navLinks">
+          <li><a href="#home">Home</a></li>
+          <li><a href="#about">About</a></li>
+          <li><a href="#skills">Skills</a></li>
+          <li><a href="#projects">Projects</a></li>
+          <li><a href="#services">Services</a></li>
+          <li><a href="#contact">Contact</a></li>
+        </ul>
+        <button class="theme-toggle" id="themeToggle">🌙</button>
+        <button class="mobile-menu-btn" id="mobileMenuBtn">☰</button>
+      </div>
+    </nav> -->
+
+    <!-- BOTTOM NAVIGATION -->
+    <nav class="bottom-nav" id="bottomNav">
+      <div class="nav-track">
+        <a href="#home" class="nav-item active" data-section="home">
+          <i class="ph ph-house-simple nav-icon"></i>
+          <span class="nav-label">Home</span>
+        </a>
+        <a href="#about" class="nav-item" data-section="about">
+          <i class="ph ph-user-circle nav-icon"></i>
+          <span class="nav-label">About</span>
+        </a>
+        <a href="#skills" class="nav-item" data-section="skills">
+          <i class="ph ph-lightning nav-icon"></i>
+          <span class="nav-label">Skills</span>
+        </a>
+        <a href="#projects" class="nav-item" data-section="projects">
+          <i class="ph ph-terminal nav-icon"></i>
+          <span class="nav-label">Projects</span>
+        </a>
+        <a href="#services" class="nav-item" data-section="services">
+          <i class="ph ph-handshake nav-icon"></i>
+          <span class="nav-label">Services</span>
+        </a>
+        <a href="#contact" class="nav-item" data-section="contact">
+          <i class="ph ph-envelope-simple nav-icon"></i>
+          <span class="nav-label">Contact</span>
+        </a>
+        <div class="nav-indicator"></div>
+      </div>
+      <button class="theme-toggle-bottom" id="themeToggleBottom" title="Theme Toggle">
+        <i class="ph ph-moon theme-icon" id="themeIcon"></i>
+      </button>
+    </nav>
+
+    <!-- HERO SECTION -->
+    <section class="hero" id="home">
+      <div class="gradient-orb orb-1"></div>
+      <div class="gradient-orb orb-2"></div>
+
+      <div class="hero-content">
+        <div class="hero-text slide-in-left">
+          <h1>
+            Hi, I'm <span class="gradient-text">Muhammad Asad Ullah</span>
+          </h1>
+          <div class="typing-text" id="typingText"></div>
+          <p>
+            Building intelligent solutions with Python, ML, and web technologies
+            to solve real-world problems and create impact.
+          </p>
+          <div class="hero-buttons">
+            <a href="#projects" class="btn btn-primary">View Projects</a>
+            <a href="#contact" class="btn btn-secondary">Hire Me</a>
+            <a href="#" class="btn btn-secondary" id="resumeBtn"
+              >Download Resume</a
+            >
+          </div>
+        </div>
+        <div class="hero-visual slide-in-right">
+          <div class="model-container">
+            <model-viewer
+              src="model\building.glb"
+              alt="3D Interactive Model"
+              auto-rotate
+              camera-controls
+              rotation-per-second="30deg"
+              interaction-prompt="none"
+              shadow-intensity="0.5"
+              exposure="1.5"
+              shadow-softness="1"
+              class="model-3d"
+            >
+            </model-viewer>
+            <!-- <div class="model-label">
+              <span class="label-icon"><i class="ph ph-brain"></i></i></span>
+              <span class="label-text">Interactive 3D Model</span>
+            </div> -->
+            <div class="model-hint">
+              <span class="hint-text">Drag to rotate • Scroll to zoom</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- STATS SECTION -->
+    <div class="stats-section slide-in-up">
+      <div class="stats-grid">
+        <div class="stat-item">
+          <span class="stat-number" data-target="15">0</span
+          ><span class="stat-number">+</span>
+          <div class="stat-label">Projects Completed</div>
+        </div>
+        <div class="stat-item">
+          <span class="stat-number" data-target="10000">0</span
+          ><span class="stat-number">+</span>
+          <div class="stat-label">Lines of Code</div>
+        </div>
+        <div class="stat-item">
+          <span class="stat-number" data-target="8">0</span
+          ><span class="stat-number">+</span>
+          <div class="stat-label">Technologies Mastered</div>
+        </div>
+        <div class="stat-item">
+          <span class="stat-number" data-target="100">0</span
+          ><span class="stat-number">%</span>
+          <div class="stat-label">Client Satisfaction</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ABOUT SECTION -->
+    <section id="about">
+      <h2 class="section-title slide-in-up">About Me</h2>
+      <p class="section-subtitle slide-in-up">
+        Passionate developer shaping intelligent digital experiences
+      </p>
+
+      <div class="about-content">
+        <div class="about-text slide-in-left">
+          <p>
+            I’m a dedicated <strong>Python Developer</strong> and
+            <strong>Machine Learning enthusiast</strong> who loves building
+            smart, practical, and meaningful solutions. My focus is on
+            understanding real problems and crafting AI-driven systems that
+            actually help people.
+          </p>
+          <p>
+            My journey in tech has led me through developing ML models,
+            analyzing data, and building efficient web applications. I’m always
+            exploring new concepts, refining my skills, and pushing myself to
+            create more impactful projects every day.
+          </p>
+          <p>
+            When I’m not coding, you’ll usually find me experimenting with
+            different ML techniques, learning new tools, or sharing my progress
+            online as I grow in the world of AI and software engineering.
+          </p>
+        </div>
+
+        <div class="about-highlights slide-in-right">
+          <div class="highlight-item">
+            <div class="highlight-icon"><i class="ph ph-brain"></i></i></div>
+            <div>
+              <strong>ML Engineer</strong>
+              <p style="color: var(--text-secondary); font-size: 0.95rem">
+                Designing and training intelligent predictive systems
+              </p>
+            </div>
+          </div>
+          <div class="highlight-item">
+            <div class="highlight-icon"><i class="ph ph-chart-line"></i></div>
+            <div>
+              <strong>Data Analyst</strong>
+              <p style="color: var(--text-secondary); font-size: 0.95rem">
+                Turning raw data into meaningful insights and decisions
+              </p>
+            </div>
+          </div>
+          <div class="highlight-item">
+            <div class="highlight-icon"><i class="ph ph-file-py"></i></div>
+            <div>
+              <strong>Python Developer</strong>
+              <p style="color: var(--text-secondary); font-size: 0.95rem">
+                Building reliable and scalable backend & ML solutions
+              </p>
+            </div>
+          </div>
+          <div class="highlight-item">
+            <div class="highlight-icon"><i class="ph ph-cpu"></i></div>
+            <div>
+              <strong>Backend Developer</strong>
+              <p style="color: var(--text-secondary); font-size: 0.95rem">
+                Building fast, secure, and scalable backend systems with clean
+                architecture and robust APIs.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SKILLS SECTION -->
+    <section id="skills">
+      <h2 class="section-title slide-in-up">Skills & Technologies</h2>
+      <p class="section-subtitle slide-in-up">
+        Building intelligent solutions with modern tools
+      </p>
+
+      <div class="skills-grid">
+        <div class="skill-card slide-in-up" style="transition-delay: 0.1s">
+          <div class="skill-header">
+            <div class="skill-icon"><i class="ph ph-file-py"></i></div>
+            <div class="skill-name">Python</div>
+          </div>
+          <p>Primary language for backend development and machine learning</p>
+          <div class="skill-bar">
+            <div class="skill-progress" data-progress="90"></div>
+          </div>
+        </div>
+
+        <div class="skill-card slide-in-up" style="transition-delay: 0.2s">
+          <div class="skill-header">
+            <div class="skill-icon"><i class="ph ph-brain"></i></i></div>
+            <div class="skill-name">Machine Learning</div>
+          </div>
+          <p>scikit-learn, NumPy, pandas, model training & evaluation</p>
+          <div class="skill-bar">
+            <div class="skill-progress" data-progress="80"></div>
+          </div>
+        </div>
+
+        <div class="skill-card slide-in-up" style="transition-delay: 0.3s">
+          <div class="skill-header">
+            <div class="skill-icon"><i class="ph ph-file-html"></i></div>
+            <div class="skill-name">Web Development</div>
+          </div>
+          <p>JavaScript, React, FastAPI, Flask, interactive UI & APIs</p>
+          <div class="skill-bar">
+            <div class="skill-progress" data-progress="75"></div>
+          </div>
+        </div>
+
+        <div class="skill-card slide-in-up" style="transition-delay: 0.4s">
+          <div class="skill-header">
+            <div class="skill-icon"><i class="ph ph-chart-line"></i></div>
+            <div class="skill-name">Data Analysis</div>
+          </div>
+          <p>Statistical analysis, visualization, preprocessing pipelines</p>
+          <div class="skill-bar">
+            <div class="skill-progress" data-progress="85"></div>
+          </div>
+        </div>
+
+        <div class="skill-card slide-in-up" style="transition-delay: 0.5s">
+          <div class="skill-header">
+            <div class="skill-icon"><i class="ph ph-plug"></i></div>
+            <div class="skill-name">Tools & APIs</div>
+          </div>
+          <p>Git, GitHub, REST APIs, automation & integrations</p>
+          <div class="skill-bar">
+            <div class="skill-progress" data-progress="80"></div>
+          </div>
+        </div>
+
+        <div class="skill-card slide-in-up" style="transition-delay: 0.6s">
+          <div class="skill-header">
+            <div class="skill-icon"><i class="ph ph-lightbulb"></i></div>
+            <div class="skill-name">AI Product Thinking</div>
+          </div>
+          <p>Understanding user needs, problem-solving, system design</p>
+          <div class="skill-bar">
+            <div class="skill-progress" data-progress="70"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PROJECTS SECTION -->
+    <section id="projects">
+      <h2 class="section-title slide-in-up">Featured Projects</h2>
+      <p class="section-subtitle slide-in-up">
+        Real-world applications and ML solutions
+      </p>
+      <div class="project-filters slide-in-up">
+        <button class="filter-btn active" data-filter="all">
+          All Projects
+        </button>
+        <button class="filter-btn" data-filter="ml">Machine Learning</button>
+        <button class="filter-btn" data-filter="web">Web Development</button>
+        <button class="filter-btn" data-filter="api">API Integration</button>
+      </div>
+      <div class="projects-grid">
+        <div
+          class="project-card slide-in-up"
+          data-category="ml"
+          style="transition-delay: 0.3s"
+        >
+          <div class="project-image"><i class="ph ph-chart-line-up"></i></div>
+          <div class="project-content">
+            <h3 class="project-title">Linear Regression From Scratch</h3>
+            <p class="project-description">
+              Educational implementation of linear regression from first
+              principles. Features gradient descent, loss functions, and a
+              LinearRegressionGame class for training on fun toy datasets like
+              Sleep vs Happiness and Coffee vs Energy.
+            </p>
+            <div class="project-tags">
+              <span class="tag">Python</span>
+              <span class="tag">NumPy</span>
+              <span class="tag">Pandas</span>
+              <span class="tag">Matplotlib</span>
+            </div>
+            <div class="project-links">
+              <a
+                href="https://github.com/PypCoder/Linear_Regression_from_Scratch.git"
+                class="project-link"
+                ><i class="ph ph-git-branch"></i> GitHub</a
+              >
+            </div>
+          </div>
+        </div>
+
+        <div
+          class="project-card slide-in-up"
+          data-category="web"
+          style="transition-delay: 0.3s"
+        >
+          <div class="project-image"><i class="ph ph-file-csv"></i></div>
+          <div class="project-content">
+            <h3 class="project-title">Titanic Survival Simulator</h3>
+            <p class="project-description">
+              Full-stack ML web app where users input passenger details to
+              predict Titanic survival. Features instant predictions with themed
+              result cards and a modern, responsive interface powered by
+              KNeighborsClassifier.
+            </p>
+            <div class="project-tags">
+              <span class="tag">React</span>
+              <span class="tag">FastAPI</span>
+              <span class="tag">scikit-learn</span>
+              <span class="tag">Tailwind CSS</span>
+            </div>
+            <div class="project-links">
+              <a
+                href="https://github.com/PypCoder/Titanic-Survival-Simulator.git"
+                class="project-link"
+                ><i class="ph ph-git-branch"></i> GitHub</a
+              >
+            </div>
+          </div>
+        </div>
+
+        <div
+          class="project-card slide-in-up"
+          data-category="ml"
+          style="transition-delay: 0.1s"
+        >
+          <div class="project-image"><i class="ph ph-table"></i></div>
+          <div class="project-content">
+            <h3 class="project-title">Housing Price Predictor</h3>
+            <p class="project-description">
+              Predicts median house prices using the California Housing dataset.
+              Linear Regression model trained on features like median income,
+              average rooms, population, and housing age.
+            </p>
+            <div class="project-tags">
+              <span class="tag">Python</span>
+              <span class="tag">scikit-learn</span>
+              <span class="tag">Pandas</span>
+              <span class="tag">NumPy</span>
+            </div>
+            <div class="project-links">
+              <a
+                href="https://github.com/PypCoder/Housing-Price-Predictor.git"
+                class="project-link"
+                ><i class="ph ph-git-branch"></i> GitHub</a
+              >
+            </div>
+          </div>
+        </div>
+        <div
+          class="project-card slide-in-up"
+          data-category="ml"
+          style="transition-delay: 0.2s"
+        >
+          <div class="project-image"><i class="ph ph-paper-plane-tilt"></i></div>
+          <div class="project-content">
+            <h3 class="project-title">Spam Detection System</h3>
+            <p class="project-description">
+              NLP-based email classifier using Naive Bayes on real-world labeled
+              data. Automatically distinguishes spam from ham messages with
+              trained model serialization for reuse on new emails.
+            </p>
+            <div class="project-tags">
+              <span class="tag">Python</span>
+              <span class="tag">NLP</span>
+              <span class="tag">scikit-learn</span>
+              <span class="tag">Joblib</span>
+            </div>
+            <div class="project-links">
+              <a
+                href="https://github.com/PypCoder/Email-Spam-Classifier.git"
+                class="project-link"
+                ><i class="ph ph-git-branch"></i> GitHub</a
+              >
+            </div>
+          </div>
+        </div>
+        <div
+  class="project-card slide-in-up"
+  data-category="api web"
+  style="transition-delay: 0.2s"
+>
+  <div class="project-image">
+    <i class="ph ph-globe-hemisphere-west"></i>
+  </div>
+  <div class="project-content">
+    <h3 class="project-title">DailyByte</h3>
+    <p class="project-description">
+      <p class="project-description">
+  DailyByte is a Flask-based dashboard that fetches real-time weather,
+  geolocation, and currency data using public APIs, wrapped in a fast,
+  responsive UI.
+</p>
+
+    <div class="project-tags">
+      <span class="tag"><i class="ph ph-file-py"></i> Python</span>
+      <span class="tag"><i class="ph ph-browser"></i> Flask</span>
+      <span class="tag"><i class="ph ph-plug"></i> API</span>
+      <span class="tag"><i class="ph ph-file-html"></i> HTML</span>
+      <span class="tag"><i class="ph ph-file-css"></i> CSS</span>
+      <span class="tag"><i class="ph ph-file-js"></i> JavaScript</span>
+    </div>
+    <div class="project-links">
+      <a
+        href="https://github.com/PypCoder/DailyByte.git"
+        class="project-link"
+      >
+        <i class="ph ph-git-branch"></i> GitHub
+      </a>
+    </div>
+  </div>
+</div>
+
+      </div>
+    </section>
+
+    <!-- SERVICES SECTION -->
+    <section id="services">
+      <h2 class="section-title slide-in-up">Freelance Services</h2>
+      <p class="section-subtitle slide-in-up">
+        Helping brands and businesses unlock the power of AI
+      </p>
+
+      <div class="services-grid">
+        <div class="service-card slide-in-up" style="transition-delay: 0.1s">
+          <div class="service-icon"><i class="ph ph-brain"></i></div>
+          <h3 class="service-title">Machine Learning Models</h3>
+          <p class="service-description">
+            Custom ML solutions including predictive modeling, classification
+            systems, and smart automation tailored to your business goals.
+          </p>
+        </div>
+
+        <div class="service-card slide-in-up" style="transition-delay: 0.2s">
+          <div class="service-icon"><i class="ph ph-robot"></i></div>
+          <h3 class="service-title">AI Chatbots</h3>
+          <p class="service-description">
+            Conversational AI for customer support, lead generation, and
+            workflow automation using NLP and API integrations.
+          </p>
+        </div>
+
+        <div class="service-card slide-in-up" style="transition-delay: 0.3s">
+          <div class="service-icon"><i class="ph ph-globe"></i></div>
+          <h3 class="service-title">Web Applications</h3>
+          <p class="service-description">
+            Modern, responsive applications combining clean UI/UX with fast,
+            secure backend development.
+          </p>
+        </div>
+
+        <div class="service-card slide-in-up" style="transition-delay: 0.4s">
+          <div class="service-icon"><i class="ph ph-chart-bar"></i></div>
+          <h3 class="service-title">Data Analysis</h3>
+          <p class="service-description">
+            Data cleaning, visualization, and insights to help you make smarter
+            and more informed decisions.
+          </p>
+        </div>
+
+        <div class="service-card slide-in-up" style="transition-delay: 0.5s">
+          <div class="service-icon"><i class="ph ph-plug"></i></div>
+          <h3 class="service-title">API Development</h3>
+          <p class="service-description">
+            RESTful API development and smooth integration of third-party
+            services into your products and workflows.
+          </p>
+        </div>
+
+        <div class="service-card slide-in-up" style="transition-delay: 0.6s">
+          <div class="service-icon"><i class="ph ph-hand-heart"></i></div>
+          <h3 class="service-title">ML & AI Consultation</h3>
+          <p class="service-description">
+            Guidance on ML strategy, chatbot integrations, architecture
+            planning, and best development practices.
+          </p>
+        </div>
+      </div>
+
+      <div style="text-align: center; margin-top: 4rem" class="slide-in-up">
+        <a href="#contact" class="btn btn-primary">Let's Work Together</a>
+      </div>
+    </section>
+
+    <!-- CONTACT SECTION -->
+    <section id="contact">
+      <h2 class="section-title slide-in-up">Get In Touch</h2>
+      <p class="section-subtitle slide-in-up">
+        Have a project in mind? Let's create something amazing together!
+      </p>
+      <div class="contact-content slide-in-up">
+        <form class="contact-form" id="contactForm">
+          <div class="form-group">
+            <label for="name">Name</label>
+            <input
+              type="text"
+              id="name"
+              name="name"
+              required
+              placeholder="Muhammad Asad Ullah"
+            />
+          </div>
+          <div class="form-group">
+            <label for="email">Email</label>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              required
+              placeholder="your.email@example.com"
+            />
+          </div>
+          <div class="form-group">
+            <label for="message">Message</label>
+            <textarea
+              id="message"
+              name="message"
+              required
+              placeholder="Tell me about your project..."
+            ></textarea>
+          </div>
+          <button type="submit" class="btn btn-primary" style="width: 100%">
+            Send Message
+          </button>
+        </form>
+        <div class="social-links">
+          <a
+            href="https://www.linkedin.com/in/asad-sagheer786/"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="social-link"
+            title="LinkedIn"
+          >
+            <i class="ph ph-linkedin-logo"></i>
+          </a>
+
+          <a
+            href="https://github.com/PypCoder"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="social-link"
+            title="GitHub"
+          >
+            <i class="ph ph-github-logo"></i>
+          </a>
+
+          <a
+            href="https://x.com/thecode_envoy"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="social-link"
+            title="X / Twitter"
+          >
+            <i class="ph ph-x-logo"></i>
+          </a>
+
+          <a
+            href="mailto:asadsagheer243@gmail.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="social-link"
+            title="Email Me"
+          >
+            <i class="ph ph-at"></i>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer>
+      <p style="font-weight: 600; font-size: 1.1rem">
+        &copy; 2025 Muhammad Asad Ullah. All rights reserved.
+      </p>
+      <p style="margin-top: 1rem; color: var(--text-secondary)">
+        Documenting my journey in tech | Aspiring AI/ML Engineer
+      </p>
+    </footer>
+    <!-- <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script> -->
+    <script src="script.js"></script>
+  </body>
+</html>
