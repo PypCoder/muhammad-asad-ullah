@@ -1,3 +1,7 @@
+window.addEventListener('load', () => {
+  window.scrollTo(0, 0);
+});
+
 // import createClient from "@supabase/supabase-js";
 
 // function loadWaitlist() {
@@ -84,6 +88,7 @@ function hideLoadingScreen(direction = "up") {
   setTimeout(() => {
     document.body.classList.remove("loading");
     document.body.classList.add("loaded");
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }, 300);
 
   // Remove loading screen from DOM after animation
@@ -198,108 +203,123 @@ window.addEventListener("scroll", () => {
   scrollProgress.style.width = scrollPercent + "%";
 });
 
-// === OPTIMIZED NAVIGATION SCRIPT ===
-const navItems = document.querySelectorAll(".nav-item");
-const navIndicator = document.querySelector(".nav-indicator");
-const sections = document.querySelectorAll("section[id]");
-const themeToggle = document.getElementById("themeToggleBottom");
+// === THEME TOGGLE ===
+const themeToggle = document.getElementById("themeToggle");
 const themeIcon = document.getElementById("themeIcon");
 const html = document.documentElement;
 
-// Initialize theme
 const currentTheme = localStorage.getItem("theme") || "light";
 html.setAttribute("data-theme", currentTheme);
+
+// Initial icon
 themeIcon.className =
   currentTheme === "dark" ? "ph ph-sun theme-icon" : "ph ph-moon theme-icon";
 
-// Theme toggle
 themeToggle.addEventListener("click", () => {
   const theme = html.getAttribute("data-theme") === "light" ? "dark" : "light";
   html.setAttribute("data-theme", theme);
   localStorage.setItem("theme", theme);
+
+  // Swap icons dynamically
   themeIcon.className =
     theme === "dark" ? "ph ph-sun theme-icon" : "ph ph-moon theme-icon";
 });
 
-// Update indicator position
-function updateIndicator(element) {
-  const rect = element.getBoundingClientRect();
-  const parentRect = element.parentElement.getBoundingClientRect();
-  navIndicator.style.width = `${rect.width}px`;
-  navIndicator.style.left = `${rect.left - parentRect.left}px`;
-}
-
-// Initialize indicator
-const activeItem = document.querySelector(".nav-item.active");
-if (activeItem) updateIndicator(activeItem);
-
-// Click handler
-navItems.forEach((item) => {
-  item.addEventListener("click", (e) => {
+// === SMOOTH SCROLLING ===
+document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
+  anchor.addEventListener("click", function (e) {
     e.preventDefault();
-
-    // Update active state
-    navItems.forEach((nav) => nav.classList.remove("active"));
-    item.classList.add("active");
-    updateIndicator(item);
-
-    // Smooth scroll
-    const targetId = item.getAttribute("href");
-    const targetSection = document.querySelector(targetId);
-    if (targetSection) {
-      targetSection.scrollIntoView({ behavior: "smooth", block: "start" });
+    const target = document.querySelector(this.getAttribute("href"));
+    if (target) {
+      target.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
     }
   });
 });
 
-// Scroll handler with throttling
-let ticking = false;
-let lastKnownScrollPosition = 0;
+// === BOTTOM NAVIGATION ===
+const navItems = document.querySelectorAll(".nav-item");
+const navIndicator = document.querySelector(".nav-indicator");
+// const themeToggleBottom = document.getElementById("themeToggleBottom");
 
-function updateActiveSection(scrollPos) {
+// Set initial indicator position
+function updateIndicator(element) {
+  const rect = element.getBoundingClientRect();
+  const parentRect = element.parentElement.getBoundingClientRect();
+
+  navIndicator.style.width = rect.width + "px";
+  navIndicator.style.left = rect.left - parentRect.left + "px";
+}
+
+// Initialize indicator on active item
+const activeItem = document.querySelector(".nav-item.active");
+if (activeItem) {
+  updateIndicator(activeItem);
+}
+
+// Update indicator on click
+navItems.forEach((item) => {
+  item.addEventListener("click", (e) => {
+    // Remove active from all
+    navItems.forEach((nav) => nav.classList.remove("active"));
+
+    // Add active to clicked
+    item.classList.add("active");
+
+    // Update indicator
+    updateIndicator(item);
+  });
+});
+
+// Update active state based on scroll position
+const sections = document.querySelectorAll("section[id]");
+
+window.addEventListener("scroll", () => {
   let current = "";
 
   sections.forEach((section) => {
     const sectionTop = section.offsetTop;
     const sectionHeight = section.clientHeight;
-    if (scrollPos >= sectionTop - 200) {
+
+    if (window.pageYOffset >= sectionTop - 200) {
       current = section.getAttribute("id");
     }
   });
 
   navItems.forEach((item) => {
-    const isActive = item.getAttribute("data-section") === current;
-    if (isActive && !item.classList.contains("active")) {
-      navItems.forEach((nav) => nav.classList.remove("active"));
+    item.classList.remove("active");
+
+    if (item.getAttribute("data-section") === current) {
       item.classList.add("active");
       updateIndicator(item);
     }
   });
-}
+});
 
-window.addEventListener(
-  "scroll",
-  () => {
-    lastKnownScrollPosition = window.scrollY;
-    if (!ticking) {
-      window.requestAnimationFrame(() => {
-        updateActiveSection(lastKnownScrollPosition);
-        ticking = false;
+// Smooth scrolling
+navItems.forEach((item) => {
+  item.addEventListener("click", (e) => {
+    e.preventDefault();
+    const targetId = item.getAttribute("href");
+    const targetSection = document.querySelector(targetId);
+
+    if (targetSection) {
+      targetSection.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
       });
-      ticking = true;
     }
-  },
-  { passive: true }
-);
+  });
+});
 
-// Resize handler with debouncing
-let resizeTimer;
+// Update indicator on window resize
 window.addEventListener("resize", () => {
-  clearTimeout(resizeTimer);
-  resizeTimer = setTimeout(() => {
-    const activeItem = document.querySelector(".nav-item.active");
-    if (activeItem) updateIndicator(activeItem);
-  }, 150);
+  const activeItem = document.querySelector(".nav-item.active");
+  if (activeItem) {
+    updateIndicator(activeItem);
+  }
 });
 
 // === TYPING ANIMATION ===
@@ -319,10 +339,10 @@ function typeEffect() {
   const currentPhrase = phrases[phraseIndex];
 
   if (isDeleting) {
-    typingText.textContent = currentPhrase.substring(0, charIndex - 1);
+    typingText.textContent = ' ' + currentPhrase.substring(0, charIndex - 1);
     charIndex--;
   } else {
-    typingText.textContent = currentPhrase.substring(0, charIndex + 1);
+    typingText.textContent = ' ' + currentPhrase.substring(0, charIndex + 1);
     charIndex++;
   }
 
@@ -610,13 +630,13 @@ techIcons.forEach((icon) => {
 });
 
 // === PERFORMANCE OPTIMIZATION ===
-let performanceTicking = false;
+let ticking = false;
 window.addEventListener("scroll", () => {
-  if (!performanceTicking) {
+  if (!ticking) {
     window.requestAnimationFrame(() => {
-      performanceTicking = false;
+      ticking = false;
     });
-    performanceTicking = true;
+    ticking = true;
   }
 });
 
