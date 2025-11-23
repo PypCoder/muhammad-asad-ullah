@@ -19,46 +19,12 @@
 //   return Promise.all([data, error]);
 // }
 
-// === LOADING SCREEN ===
-// const loadingScreen = document.getElementById("loadingScreen");
-// const loadingProgress = document.getElementById("loadingProgress");
-
-// let progress = 0;
-// const loadingInterval = setInterval(() => {
-//   progress += Math.random() * 30;
-//   if (progress > 100) progress = 100;
-//   loadingProgress.style.width = progress + "%";
-
-//   if (progress >= 100) {
-//     clearInterval(loadingInterval);
-//     setTimeout(() => {
-//       loadingScreen.classList.add("hidden");
-//       // Remove from DOM after animation
-//       setTimeout(() => {
-//         loadingScreen.style.display = "none";
-//       }, 500);
-//     }, 300);
-//   }
-// }, 200);
-
-// // Ensure loading screen disappears even if images load slowly
-// window.addEventListener("load", () => {
-//   setTimeout(() => {
-//     loadingProgress.style.width = "100%";
-//     clearInterval(loadingInterval);
-//     setTimeout(() => {
-//       loadingScreen.classList.add("hidden");
-//       setTimeout(() => {
-//         loadingScreen.style.display = "none";
-//       }, 500);
-//     }, 300);
-//   }, 500);
-// });
-
 const loadingScreen = document.getElementById("loadingScreen");
 const loadingProgress = document.getElementById("loadingProgress");
 const enterBtn = document.getElementById("enterBtn");
-let isLoaded = false;
+const mainContent = document.getElementById("mainContent");
+let progress = 0;
+
 // === DYNAMIC LOADING TEXT ===
 const loaderText = document.querySelector(".loader-text"); // Fixed: added dot for class
 const loadingTexts = [
@@ -101,35 +67,37 @@ window.addEventListener("load", () => {
 });
 
 // Simulate loading progress
-let progress = 0;
 const loadingInterval = setInterval(() => {
-  progress += Math.random() * 25;
-  if (progress > 100) progress = 100;
-  loadingProgress.style.width = progress + "%";
-
+  progress += Math.random() * 15;
   if (progress >= 100) {
+    progress = 100;
     clearInterval(loadingInterval);
-    isLoaded = true;
   }
-}, 150);
+  loadingProgress.style.width = progress + "%";
+}, 200);
 
-// Ensure loading completes
-window.addEventListener("load", () => {
+// Function to hide loading screen and show content
+function hideLoadingScreen(direction = "up") {
+  loadingScreen.classList.add(`slide-${direction}`);
+
+  // Remove loading class from body
   setTimeout(() => {
-    loadingProgress.style.width = "100%";
-    clearInterval(loadingInterval);
-    isLoaded = true;
+    document.body.classList.remove("loading");
+    document.body.classList.add("loaded");
   }, 300);
-});
 
-// Enter button click (desktop)
+  // Remove loading screen from DOM after animation
+  setTimeout(() => {
+    loadingScreen.style.display = "none";
+  }, 800);
+}
+
+// Enter button click
 enterBtn.addEventListener("click", () => {
-  if (isLoaded) {
-    enterPortfolio();
-  }
+  hideLoadingScreen("up");
 });
 
-// Swipe up gesture (mobile)
+// Swipe up gesture for mobile
 let touchStartY = 0;
 let touchEndY = 0;
 
@@ -144,44 +112,23 @@ loadingScreen.addEventListener(
 loadingScreen.addEventListener(
   "touchend",
   (e) => {
-    if (!isLoaded) return;
-
     touchEndY = e.changedTouches[0].screenY;
-    const swipeDistance = touchStartY - touchEndY;
-
-    // Detect upward swipe (at least 50px)
-    if (swipeDistance > 50) {
-      enterPortfolio();
-    }
+    handleSwipe();
   },
   { passive: true }
 );
 
-// Keyboard shortcut (Enter or Space)
-document.addEventListener("keydown", (e) => {
-  if (isLoaded && (e.key === "Enter" || e.key === " ")) {
-    e.preventDefault();
-    enterPortfolio();
+function handleSwipe() {
+  if (touchStartY - touchEndY > 50) {
+    // Swipe up detected
+    hideLoadingScreen("up");
   }
-});
-
-function enterPortfolio() {
-  // Detect swipe direction preference
-  const isMobile = window.matchMedia(
-    "(hover: none) and (pointer: coarse)"
-  ).matches;
-
-  if (isMobile) {
-    loadingScreen.classList.add("slide-up");
-  } else {
-    loadingScreen.classList.add("slide-up");
-  }
-
-  // Remove from DOM after animation
-  setTimeout(() => {
-    loadingScreen.style.display = "none";
-  }, 800);
 }
+
+// Optional: Auto-hide after loading completes (remove if not needed)
+// setTimeout(() => {
+//   hideLoadingScreen('up');
+// }, 3000);
 
 // === RESUME MODAL ===
 const resumeModal = document.getElementById("resumeModal");
@@ -242,48 +189,6 @@ document.addEventListener("keydown", (e) => {
   }
 });
 
-// === CUSTOM CURSOR ===
-//   const cursor = document.querySelector(".custom-cursor");
-//   const cursorDot = document.querySelector(".cursor-dot");
-//   let mouseX = 0,
-//     mouseY = 0;
-//   let cursorX = 0,
-//     cursorY = 0;
-//   let dotX = 0,
-//     dotY = 0;
-
-//   document.addEventListener("mousemove", (e) => {
-//     mouseX = e.clientX;
-//     mouseY = e.clientY;
-//     cursor.style.opacity = "1";
-//     cursorDot.style.opacity = "1";
-//   });
-
-//   function animateCursor() {
-//     cursorX += (mouseX - cursorX) * 0.15;
-//     cursorY += (mouseY - cursorY) * 0.15;
-//     dotX += (mouseX - dotX) * 0.3;
-//     dotY += (mouseY - dotY) * 0.3;
-
-//     cursor.style.left = cursorX + "px";
-//     cursor.style.top = cursorY + "px";
-//     cursorDot.style.left = dotX + "px";
-//     cursorDot.style.top = dotY + "px";
-
-//     requestAnimationFrame(animateCursor);
-//   }
-//   animateCursor();
-
-//   const hoverElements = document.querySelectorAll(
-//     "a, button, .project-card, .skill-card, .service-card, .highlight-item, .tech-icon, .filter-btn"
-//   );
-//   hoverElements.forEach((el) => {
-//     el.addEventListener("mouseenter", () => cursor.classList.add("hover"));
-//     el.addEventListener("mouseleave", () =>
-//       cursor.classList.remove("hover")
-//     );
-//   });
-
 // === SCROLL PROGRESS ===
 const scrollProgress = document.querySelector(".scroll-progress");
 window.addEventListener("scroll", () => {
@@ -293,167 +198,108 @@ window.addEventListener("scroll", () => {
   scrollProgress.style.width = scrollPercent + "%";
 });
 
-// === THEME TOGGLE ===
+// === OPTIMIZED NAVIGATION SCRIPT ===
+const navItems = document.querySelectorAll(".nav-item");
+const navIndicator = document.querySelector(".nav-indicator");
+const sections = document.querySelectorAll("section[id]");
 const themeToggle = document.getElementById("themeToggleBottom");
 const themeIcon = document.getElementById("themeIcon");
 const html = document.documentElement;
 
+// Initialize theme
 const currentTheme = localStorage.getItem("theme") || "light";
 html.setAttribute("data-theme", currentTheme);
+themeIcon.className =
+  currentTheme === "dark" ? "ph ph-sun theme-icon" : "ph ph-moon theme-icon";
 
-// Initial icon
-themeIcon.className = currentTheme === "dark" ? "ph ph-sun theme-icon" : "ph ph-moon theme-icon";
-
+// Theme toggle
 themeToggle.addEventListener("click", () => {
   const theme = html.getAttribute("data-theme") === "light" ? "dark" : "light";
   html.setAttribute("data-theme", theme);
   localStorage.setItem("theme", theme);
-
-  // Swap icons dynamically
-  themeIcon.className = theme === "dark" ? "ph ph-sun theme-icon" : "ph ph-moon theme-icon";
+  themeIcon.className =
+    theme === "dark" ? "ph ph-sun theme-icon" : "ph ph-moon theme-icon";
 });
 
+// Update indicator position
+function updateIndicator(element) {
+  const rect = element.getBoundingClientRect();
+  const parentRect = element.parentElement.getBoundingClientRect();
+  navIndicator.style.width = `${rect.width}px`;
+  navIndicator.style.left = `${rect.left - parentRect.left}px`;
+}
 
+// Initialize indicator
+const activeItem = document.querySelector(".nav-item.active");
+if (activeItem) updateIndicator(activeItem);
 
-// // === MOBILE MENU ===
-// const mobileMenuBtn = document.getElementById("mobileMenuBtn");
-// const navLinks = document.getElementById("navLinks");
-
-// mobileMenuBtn.addEventListener("click", () => {
-//   navLinks.classList.toggle("active");
-//   mobileMenuBtn.textContent = navLinks.classList.contains("active") ? "✕" : "☰";
-// });
-
-// document.querySelectorAll(".nav-links a").forEach((link) => {
-//   link.addEventListener("click", () => {
-//     navLinks.classList.remove("active");
-//     mobileMenuBtn.textContent = "☰";
-//   });
-// });
-
-// === SMOOTH SCROLLING ===
-document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
-  anchor.addEventListener("click", function (e) {
+// Click handler
+navItems.forEach((item) => {
+  item.addEventListener("click", (e) => {
     e.preventDefault();
-    const target = document.querySelector(this.getAttribute("href"));
-    if (target) {
-      target.scrollIntoView({
-        behavior: "smooth",
-        block: "start",
-      });
+
+    // Update active state
+    navItems.forEach((nav) => nav.classList.remove("active"));
+    item.classList.add("active");
+    updateIndicator(item);
+
+    // Smooth scroll
+    const targetId = item.getAttribute("href");
+    const targetSection = document.querySelector(targetId);
+    if (targetSection) {
+      targetSection.scrollIntoView({ behavior: "smooth", block: "start" });
     }
   });
 });
 
-// === NAVBAR SCROLL EFFECT ===
-// const navbar = document.getElementById("navbar");
-// window.addEventListener("scroll", () => {
-//   if (window.scrollY > 50) {
-//     navbar.classList.add("scrolled");
-//   } else {
-//     navbar.classList.remove("scrolled");
-//   }
-// });
+// Scroll handler with throttling
+let ticking = false;
+let lastKnownScrollPosition = 0;
 
-// === BOTTOM NAVIGATION ===
-const navItems = document.querySelectorAll(".nav-item");
-const navIndicator = document.querySelector(".nav-indicator");
-// const themeToggleBottom = document.getElementById("themeToggleBottom");
-
-// Set initial indicator position
-function updateIndicator(element) {
-  const rect = element.getBoundingClientRect();
-  const parentRect = element.parentElement.getBoundingClientRect();
-
-  navIndicator.style.width = rect.width + "px";
-  navIndicator.style.left = rect.left - parentRect.left + "px";
-}
-
-// Initialize indicator on active item
-const activeItem = document.querySelector(".nav-item.active");
-if (activeItem) {
-  updateIndicator(activeItem);
-}
-
-// Update indicator on click
-navItems.forEach((item) => {
-  item.addEventListener("click", (e) => {
-    // Remove active from all
-    navItems.forEach((nav) => nav.classList.remove("active"));
-
-    // Add active to clicked
-    item.classList.add("active");
-
-    // Update indicator
-    updateIndicator(item);
-  });
-});
-
-// Update active state based on scroll position
-const sections = document.querySelectorAll("section[id]");
-
-window.addEventListener("scroll", () => {
+function updateActiveSection(scrollPos) {
   let current = "";
 
   sections.forEach((section) => {
     const sectionTop = section.offsetTop;
     const sectionHeight = section.clientHeight;
-
-    if (window.pageYOffset >= sectionTop - 200) {
+    if (scrollPos >= sectionTop - 200) {
       current = section.getAttribute("id");
     }
   });
 
   navItems.forEach((item) => {
-    item.classList.remove("active");
-
-    if (item.getAttribute("data-section") === current) {
+    const isActive = item.getAttribute("data-section") === current;
+    if (isActive && !item.classList.contains("active")) {
+      navItems.forEach((nav) => nav.classList.remove("active"));
       item.classList.add("active");
       updateIndicator(item);
     }
   });
-});
+}
 
-// Smooth scrolling
-navItems.forEach((item) => {
-  item.addEventListener("click", (e) => {
-    e.preventDefault();
-    const targetId = item.getAttribute("href");
-    const targetSection = document.querySelector(targetId);
-
-    if (targetSection) {
-      targetSection.scrollIntoView({
-        behavior: "smooth",
-        block: "start",
+window.addEventListener(
+  "scroll",
+  () => {
+    lastKnownScrollPosition = window.scrollY;
+    if (!ticking) {
+      window.requestAnimationFrame(() => {
+        updateActiveSection(lastKnownScrollPosition);
+        ticking = false;
       });
+      ticking = true;
     }
-  });
-});
+  },
+  { passive: true }
+);
 
-// Theme toggle (bottom)
-// themeToggleBottom.addEventListener("click", () => {
-//   const html = document.documentElement;
-//   const currentTheme = html.getAttribute("data-theme");
-//   const newTheme = currentTheme === "light" ? "dark" : "light";
-
-//   html.setAttribute("data-theme", newTheme);
-//   localStorage.setItem("theme", newTheme);
-
-//   const themeIcon = themeToggleBottom.querySelector(".theme-icon");
-//   themeIcon.textContent = newTheme === "dark" ? "🌙" : "☀️";
-// });
-
-// // Update theme icon on load
-// const savedTheme = localStorage.getItem("theme") || "light";
-// const themeIcon = themeToggleBottom.querySelector(".theme-icon");
-// themeIcon.textContent = savedTheme === "dark" ? "🌙" : "☀️";
-
-// Update indicator on window resize
+// Resize handler with debouncing
+let resizeTimer;
 window.addEventListener("resize", () => {
-  const activeItem = document.querySelector(".nav-item.active");
-  if (activeItem) {
-    updateIndicator(activeItem);
-  }
+  clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(() => {
+    const activeItem = document.querySelector(".nav-item.active");
+    if (activeItem) updateIndicator(activeItem);
+  }, 150);
 });
 
 // === TYPING ANIMATION ===
@@ -657,8 +503,8 @@ easterEgg.addEventListener("click", () => {
 
 // === CONTACT FORM ===
 const contactForm = document.getElementById("contactForm");
-const thankYouCard = document.getElementById('thank-you-card');
-      
+const thankYouCard = document.getElementById("thank-you-card");
+
 contactForm.addEventListener("submit", (e) => {
   e.preventDefault();
 
@@ -668,8 +514,8 @@ contactForm.addEventListener("submit", (e) => {
     message: document.getElementById("message").value,
   };
   emailjs
-    .send("service_z15np1h", "template_a72o7er", formData).then(
-      thankYouCard.style.display = 'block');
+    .send("service_z15np1h", "template_a72o7er", formData)
+    .then((thankYouCard.style.display = "block"));
   // Show success message
   const submitBtn = contactForm.querySelector('button[type="submit"]');
   const originalText = submitBtn.textContent;
@@ -764,13 +610,13 @@ techIcons.forEach((icon) => {
 });
 
 // === PERFORMANCE OPTIMIZATION ===
-let ticking = false;
+let performanceTicking = false;
 window.addEventListener("scroll", () => {
-  if (!ticking) {
+  if (!performanceTicking) {
     window.requestAnimationFrame(() => {
-      ticking = false;
+      performanceTicking = false;
     });
-    ticking = true;
+    performanceTicking = true;
   }
 });
 

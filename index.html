@@ -29,33 +29,32 @@
     </script>
     <title>Muhammad Asad Ullah - Python & ML Developer</title>
   </head>
-  <body>
-
-    <!-- LOADING SCREEN -->
-    <div class="loading-screen" id="loadingScreen">
-      <div class="loader-content">
-        <div class="loader-logo">Muhammad Asad Ullah</div>
-        <div class="loader-spinner">
-          <div class="loader-dot"></div>
-          <div class="loader-dot"></div>
-          <div class="loader-dot"></div>
-        </div>
-        <div class="loader-progress">
-          <div class="loader-progress-bar" id="loadingProgress"></div>
-        </div>
-        <div class="loader-prompt">
-          <div class="loader-text">Welcome Aboard</div>
-          <button class="loader-action" id="enterBtn">
-            <span>Enter</span>
-            <span class="loader-action-icon">→</span>
-          </button>
-          <div class="swipe-hint">
-            <span class="swipe-icon">↑</span> Swipe up to enter
-          </div>
+  <body class="loading">
+  <!-- Loading Screen -->
+  <div class="loading-screen" id="loadingScreen">
+    <div class="loader-content">
+      <div class="loader-logo">Muhammad Asad Ullah</div>
+      <div class="loader-spinner">
+        <div class="loader-dot"></div>
+        <div class="loader-dot"></div>
+        <div class="loader-dot"></div>
+      </div>
+      <div class="loader-progress">
+        <div class="loader-progress-bar" id="loadingProgress"></div>
+      </div>
+      <div class="loader-prompt">
+        <div class="loader-text">Welcome Aboard</div>
+        <button class="loader-action" id="enterBtn">
+          <span>Enter</span>
+          <span class="loader-action-icon">→</span>
+        </button>
+        <div class="swipe-hint">
+          <span class="swipe-icon">↑</span> Swipe up to enter
         </div>
       </div>
     </div>
-
+  </div>
+    <!-- <div class="main-content" id="mainContent"> -->
     <!-- RESUME COMING SOON MODAL -->
     <div class="modal" id="resumeModal">
       <div class="modal-content">
@@ -90,67 +89,48 @@
         </p>
       </div>
     </div>
-    <!-- Custom Cursor -->
-    <!-- <div class="custom-cursor"></div>
-    <div class="cursor-dot"></div> -->
 
     <!-- Scroll Progress -->
     <div class="scroll-progress"></div>
 
     <!-- Easter Egg -->
-    <div class="easter-egg" id="easterEgg">
-      🎉 You've explored <span id="clickCount">0</span> sections!
-    </div>
-
-    <!-- NAVIGATION -->
-    <!-- <nav id="navbar">
-      <div class="nav-container">
-        <ul class="nav-links" id="navLinks">
-          <li><a href="#home">Home</a></li>
-          <li><a href="#about">About</a></li>
-          <li><a href="#skills">Skills</a></li>
-          <li><a href="#projects">Projects</a></li>
-          <li><a href="#services">Services</a></li>
-          <li><a href="#contact">Contact</a></li>
-        </ul>
-        <button class="theme-toggle" id="themeToggle">🌙</button>
-        <button class="mobile-menu-btn" id="mobileMenuBtn">☰</button>
-      </div>
-    </nav> -->
+  <div class="easter-egg" id="easterEgg">
+    🎉 You've explored <span id="clickCount">0</span> sections!
+  </div>
 
     <!-- BOTTOM NAVIGATION -->
-    <nav class="bottom-nav" id="bottomNav">
-      <div class="nav-track">
-        <a href="#home" class="nav-item active" data-section="home">
-          <i class="ph ph-house-simple nav-icon"></i>
-          <span class="nav-label">Home</span>
-        </a>
-        <a href="#about" class="nav-item" data-section="about">
-          <i class="ph ph-user-circle nav-icon"></i>
-          <span class="nav-label">About</span>
-        </a>
-        <a href="#skills" class="nav-item" data-section="skills">
-          <i class="ph ph-lightning nav-icon"></i>
-          <span class="nav-label">Skills</span>
-        </a>
-        <a href="#projects" class="nav-item" data-section="projects">
-          <i class="ph ph-terminal nav-icon"></i>
-          <span class="nav-label">Projects</span>
-        </a>
-        <a href="#services" class="nav-item" data-section="services">
-          <i class="ph ph-handshake nav-icon"></i>
-          <span class="nav-label">Services</span>
-        </a>
-        <a href="#contact" class="nav-item" data-section="contact">
-          <i class="ph ph-envelope-simple nav-icon"></i>
-          <span class="nav-label">Contact</span>
-        </a>
-        <div class="nav-indicator"></div>
-      </div>
-      <button class="theme-toggle-bottom" id="themeToggleBottom" title="Theme Toggle">
-        <i class="ph ph-moon theme-icon" id="themeIcon"></i>
-      </button>
-    </nav>
+  <nav class="bottom-nav" id="bottomNav">
+    <div class="nav-track">
+      <a href="#home" class="nav-item active" data-section="home">
+        <i class="ph ph-house-simple nav-icon"></i>
+        <span class="nav-label">Home</span>
+      </a>
+      <a href="#about" class="nav-item" data-section="about">
+        <i class="ph ph-user-circle nav-icon"></i>
+        <span class="nav-label">About</span>
+      </a>
+      <a href="#skills" class="nav-item" data-section="skills">
+        <i class="ph ph-lightning nav-icon"></i>
+        <span class="nav-label">Skills</span>
+      </a>
+      <a href="#projects" class="nav-item" data-section="projects">
+        <i class="ph ph-terminal nav-icon"></i>
+        <span class="nav-label">Projects</span>
+      </a>
+      <a href="#services" class="nav-item" data-section="services">
+        <i class="ph ph-handshake nav-icon"></i>
+        <span class="nav-label">Services</span>
+      </a>
+      <a href="#contact" class="nav-item" data-section="contact">
+        <i class="ph ph-envelope-simple nav-icon"></i>
+        <span class="nav-label">Contact</span>
+      </a>
+      <div class="nav-indicator"></div>
+    </div>
+    <button class="theme-toggle-bottom" id="themeToggleBottom" title="Toggle Theme">
+      <i class="ph ph-moon theme-icon" id="themeIcon"></i>
+    </button>
+  </nav>
 
     <!-- HERO SECTION -->
     <section class="hero" id="home">
@@ -707,6 +687,7 @@
         Documenting my journey in tech | Aspiring AI/ML Engineer
       </p>
     </footer>
+    <!-- </div> -->
     <!-- <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script> -->
     <script src="script.js"></script>
   </body>
