@@ -1,0 +1,814 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Playground — Muhammad Asad Ullah</title>
+
+  <!-- Typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600&family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    /* ==========================================================================
+       1. SYSTEM VARIABLES & BASE RESET
+       ========================================================================== */
+    :root {
+      --bg-base: #060608;
+      --bg-surface: rgba(255, 255, 255, 0.025);
+      --bg-surface-hover: rgba(255, 255, 255, 0.05);
+      --bg-glass: rgba(10, 10, 14, 0.78);
+      --border-subtle: rgba(255, 255, 255, 0.08);
+      --border-accent: rgba(255, 255, 255, 0.22);
+      
+      --text-main: #f5f5f7;
+      --text-muted: #8e8e93;
+      --text-dim: #55555a;
+      --accent-glow: rgba(255, 255, 255, 0.15);
+      --warning-amber: #f59e0b;
+
+      --font-heading: 'Space Grotesk', -apple-system, sans-serif;
+      --font-body: 'Plus Jakarta Sans', -apple-system, sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+      --font-handwriting: 'Caveat', cursive;
+
+      --ease-apple: cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      background-color: var(--bg-base);
+      color: var(--text-main);
+      font-family: var(--font-body);
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+
+    body {
+      min-height: 100vh;
+      line-height: 1.55;
+      background: radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.035) 0%, transparent 60%);
+      overflow: hidden; 
+    }
+
+    #spotlight {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 500px;
+      height: 500px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(255, 255, 255, 0.03) 0%, transparent 70%);
+      pointer-events: none;
+      transform: translate(-50%, -50%);
+      z-index: 1;
+      transition: opacity 0.4s var(--ease-apple);
+    }
+
+    #main-content {
+      opacity: 0;
+      transform: translateY(12px);
+      transition: opacity 0.8s var(--ease-apple), transform 0.8s var(--ease-apple);
+    }
+
+    #main-content.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* ==========================================================================
+       2. HANDWRITING INTRO SCREEN
+       ========================================================================== */
+    #intro-screen {
+      position: fixed;
+      inset: 0;
+      background: #000000;
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      transition: opacity 0.7s var(--ease-apple), visibility 0.7s;
+    }
+
+    #intro-screen.fade-out {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    .hello-path-svg {
+      width: clamp(260px, 50vw, 400px);
+      height: 120px;
+      overflow: visible;
+    }
+
+    .writing-text {
+      font-family: var(--font-handwriting);
+      font-size: 72px;
+      fill: transparent;
+      stroke: #ffffff;
+      stroke-width: 1.5;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      stroke-dasharray: 600;
+      stroke-dashoffset: 600;
+      animation: smoothWrite 2.5s cubic-bezier(0.45, 0, 0.15, 1) forwards, textFade 0.6s ease 1.5s forwards;
+    }
+
+    @keyframes smoothWrite {
+      to { stroke-dashoffset: 0; }
+    }
+
+    @keyframes textFade {
+      to { fill: #ffffff; }
+    }
+
+    /* ==========================================================================
+       3. NAVIGATION & BAR
+       ========================================================================== */
+    .navbar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 1000;
+      padding: 12px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--bg-glass);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .nav-brand {
+      font-family: var(--font-heading);
+      font-weight: 700;
+      font-size: 1.05rem;
+      color: var(--text-main);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: opacity 0.2s;
+    }
+
+    .nav-brand:hover {
+      opacity: 0.85;
+    }
+
+    .nav-menu {
+      display: flex;
+      gap: 24px;
+      list-style: none;
+      align-items: center;
+    }
+
+    .nav-menu a {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 0.85rem;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+
+    .nav-menu a:hover {
+      color: var(--text-main);
+    }
+
+    .btn-magnetic {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--text-main);
+      color: #000000;
+      padding: 8px 18px;
+      border-radius: 99px;
+      font-weight: 600;
+      font-size: 0.82rem;
+      text-decoration: none;
+      transition: transform 0.2s var(--ease-apple), box-shadow 0.25s, background 0.3s;
+      white-space: nowrap;
+      cursor: pointer;
+      border: none;
+    }
+
+    .btn-magnetic:hover {
+      box-shadow: 0 0 24px var(--accent-glow);
+      background: #ffffff;
+    }
+
+    .btn-secondary {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--bg-surface);
+      color: var(--text-main);
+      padding: 8px 16px;
+      border-radius: 99px;
+      border: 1px solid var(--border-subtle);
+      font-weight: 500;
+      font-size: 0.82rem;
+      text-decoration: none;
+      transition: all 0.25s var(--ease-apple);
+      cursor: pointer;
+    }
+
+    .btn-secondary:hover {
+      background: var(--bg-surface-hover);
+      border-color: var(--border-accent);
+      transform: translateY(-2px);
+    }
+
+    /* ==========================================================================
+       4. CARDS & EMBEDDED IFRAME LAYOUT
+       ========================================================================== */
+    .container {
+      max-width: 1020px;
+      margin: 0 auto;
+      padding: 0 20px;
+      position: relative;
+      z-index: 2;
+    }
+
+    section {
+      padding: 42px 0;
+    }
+
+    .reveal {
+      opacity: 0;
+      transform: translateY(18px);
+      transition: opacity 0.6s var(--ease-apple), transform 0.6s var(--ease-apple);
+    }
+
+    .reveal.active {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .hero {
+      padding-top: 130px;
+      padding-bottom: 28px;
+    }
+
+    .hero-title {
+      font-family: var(--font-heading);
+      font-size: clamp(2.2rem, 5vw, 4.2rem);
+      font-weight: 700;
+      line-height: 1.08;
+      letter-spacing: -0.03em;
+      margin-bottom: 20px;
+      background: linear-gradient(180deg, #ffffff 0%, rgba(255, 255, 255, 0.7) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero-subtitle {
+      font-size: clamp(0.98rem, 1.8vw, 1.18rem);
+      color: var(--text-muted);
+      max-width: 700px;
+      font-weight: 400;
+      line-height: 1.55;
+      margin-bottom: 28px;
+    }
+
+    .projects-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 36px;
+    }
+
+    .project-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 20px;
+      padding: 30px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      transition: all 0.35s var(--ease-apple);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .project-card:hover {
+      border-color: var(--border-accent);
+      background: var(--bg-surface-hover);
+    }
+
+    .project-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    .project-title {
+      font-family: var(--font-heading);
+      font-size: 1.55rem;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      margin-bottom: 8px;
+    }
+
+    .project-tags {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .project-tag {
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      padding: 3px 9px;
+      border-radius: 6px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-muted);
+    }
+
+    .project-lead {
+      color: var(--text-muted);
+      font-size: 0.92rem;
+      line-height: 1.55;
+    }
+    
+    .seraph-icon-badge {
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #1c1c1e, #0a0a0c);
+      border: 1px solid var(--border-subtle);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.35s var(--ease-apple);
+    }
+
+    .seraph-icon-badge:hover {
+      transform: scale(1.08);
+    }
+
+    .seraph-icon-badge svg { 
+      transform-origin: center;
+      width: 22px; 
+      height: 22px; 
+      color: #c7c7cc;
+      transform: scaleX(-1);
+    }
+
+    .seraph-icon-badge::after {
+      content: "";
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: linear-gradient(
+        to right, 
+        rgba(255, 255, 255, 0) 0%, 
+        rgba(255, 255, 255, 0.18) 50%, 
+        rgba(255, 255, 255, 0) 100%
+      );
+      transform: rotate(30deg) translateX(-100%);
+      animation: badgeShine 2.2s cubic-bezier(0.4, 0, 0.2, 1) infinite; 
+    }
+
+    .external-notice-banner {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid var(--border-subtle);
+      border-radius: 12px;
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      font-size: 0.82rem;
+      color: var(--text-muted);
+    }
+
+    .external-notice-banner .notice-info {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .external-notice-banner svg {
+      color: var(--warning-amber);
+      flex-shrink: 0;
+    }
+
+    .iframe-wrapper {
+      background: #000000;
+      border: 1px solid var(--border-subtle);
+      border-radius: 16px;
+      overflow: hidden;
+      width: 100%;
+      position: relative;
+    }
+
+    .iframe-wrapper iframe {
+      width: 100%;
+      height: 700px;
+      border: none;
+      display: block;
+    }
+
+    .footer {
+      border-top: 1px solid var(--border-subtle);
+      padding: 36px 0 28px;
+      text-align: center;
+      margin-top: 60px;
+    }
+    
+    .copyright {
+      color: var(--text-dim);
+      font-size: 0.78rem;
+    }
+  
+    /* ==========================================================================
+       5. COMING SOON CARD
+       ========================================================================== */
+    .coming-soon-card {
+      align-items: center;
+      text-align: center;
+      padding: 46px 30px;
+      border-style: dashed;
+    }
+
+    .coming-soon-card:hover {
+      border-color: var(--border-accent);
+      background: var(--bg-surface-hover);
+    }
+
+    .coming-soon-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-subtle);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      animation: iconFloat 3s ease-in-out infinite;
+    }
+
+    @keyframes iconFloat {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-6px); }
+    }
+
+    .coming-soon-card .project-lead {
+      max-width: 420px;
+      margin: 0 auto;
+    }
+
+    .coming-soon-dots {
+      display: flex;
+      gap: 6px;
+    }
+
+    .coming-soon-dots span {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--text-muted);
+      animation: dotPulse 1.4s ease-in-out infinite;
+    }
+
+    .coming-soon-dots span:nth-child(1) { animation-delay: 0s; }
+    .coming-soon-dots span:nth-child(2) { animation-delay: 0.2s; }
+    .coming-soon-dots span:nth-child(3) { animation-delay: 0.4s; }
+
+    @keyframes dotPulse {
+      0%, 60%, 100% {
+        opacity: 0.3;
+        transform: scale(0.8);
+        background: var(--text-muted);
+      }
+      30% {
+        opacity: 1;
+        transform: scale(1.3);
+        background: #ffffff;
+      }
+    }
+
+    /* ==========================================================================
+       6. OUROBOROS CARD
+       ========================================================================== */
+    .ouroboros-card {
+      position: relative;
+      overflow: hidden;
+    }
+
+    .ouroboros-card:hover {
+      transform: translateY(-4px);
+      border-color: var(--border-accent);
+      background: var(--bg-surface-hover);
+    }
+
+    .project-title-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 8px;
+    }
+
+    .ouroboros-icon-badge {
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #1c1c1e, #0a0a0c);
+      border: 1px solid var(--border-subtle);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.35s var(--ease-apple);
+    }
+
+    .ouroboros-icon-badge svg { 
+      width: 22px; 
+      height: 22px; 
+      color: #c7c7cc;
+    }
+
+    .ouroboros-icon-badge::after {
+      content: "";
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: linear-gradient(
+        to right, 
+        rgba(255, 255, 255, 0) 0%, 
+        rgba(255, 255, 255, 0.18) 50%, 
+        rgba(255, 255, 255, 0) 100%
+      );
+      transform: rotate(30deg) translateX(-100%);
+      animation: badgeShine 2.2s cubic-bezier(0.4, 0, 0.2, 1) infinite; 
+    }
+
+    @keyframes badgeShine {
+      0% {
+        transform: rotate(30deg) translateX(-100%);
+      }
+      100% {
+        transform: rotate(30deg) translateX(100%);
+      }
+    }
+
+    .ouroboros-card:hover .ouroboros-icon-badge {
+      transform: rotate(-25deg) scale(1.08);
+    }
+
+    .ouroboros-stats {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px 22px;
+    }
+
+    .ouroboros-stat {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .ouroboros-stat svg {
+      width: 15px;
+      height: 15px;
+      color: var(--text-dim);
+      flex-shrink: 0;
+    }
+
+    .ouroboros-play-btn {
+      align-self: flex-start;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Ambient Light Follower -->
+  <div id="spotlight"></div>
+
+  <!-- Ultra-Smooth Vector Writing Intro -->
+  <div id="intro-screen">
+    <svg class="hello-path-svg" viewBox="0 0 350 120">
+      <text class="writing-text" x="50%" y="50%" text-anchor="middle" dominant-baseline="middle">playground.</text>
+    </svg>
+  </div>
+
+  <div id="main-content">
+    <!-- Responsive Navigation -->
+    <nav class="navbar">
+      <a href="index.html" class="nav-brand" target="_self">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+        Back to Portfolio
+      </a>
+      <ul class="nav-menu" id="navMenu">
+        <li><a href="#lab-1">SERAPH API</a></li>
+        <li><a href="#lab-2">Ouroboros</a></li>
+      </ul>
+    </nav>
+
+    <main class="container">
+      <!-- Hero Section -->
+      <section class="hero" id="intro">
+        <div class="reveal">
+          <h1 class="hero-title">The Playground.</h1>
+          <p class="hero-subtitle">
+            A dedicated space for live experiments, model endpoints, and interactive AI simulations running directly in the browser.
+          </p>
+        </div>
+      </section>
+
+      <!-- Labs Grid -->
+      <section id="labs">
+        <div class="projects-grid">
+          
+          <!-- LAB 01: SERAPH Model API -->
+          <article class="project-card reveal" id="lab-1">
+            <div class="project-header">
+              <div>
+                <div class="project-title-row">
+                  <span class="seraph-icon-badge">
+                    <svg version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+                      <path d="M0 0 C1.09 0.19 2.19 0.37 3.31 0.56 C5.5 3.84 5.86 4.76 5.31 8.56 C3.38 11.19 3.38 11.19 1.31 13.56 C-1.35 21.56 0.22 28.37 3.5 35.88 C3.79 36.54 4.08 37.21 4.38 37.9 C7.15 43.85 10.45 49.31 16.75 51.94 C17.47 52.25 18.19 52.57 18.93 52.9 C22.18 53.8 23.93 54.19 27.31 53.56 C30.42 51.19 33.03 48.41 35.69 45.56 C36.42 44.8 37.16 44.04 37.92 43.25 C39.73 41.37 41.53 39.47 43.31 37.56 C42.18 37.25 41.04 36.94 39.88 36.62 C36.31 35.56 36.31 35.56 35.31 34.56 C35.12 31.63 35.12 31.63 35.31 28.56 C38.5 25.37 42.22 26.19 46.56 26.19 C47.41 26.16 48.26 26.14 49.13 26.11 C54.7 26.09 57.95 26.78 62.31 30.56 C68.68 37.22 73.6 48.91 74.06 58.12 C73.13 66.56 66.85 72.45 61 78.06 C60.03 79.01 60.03 79.01 59.04 79.98 C57.47 81.51 55.9 83.04 54.31 84.56 C55.43 84.57 55.43 84.57 56.57 84.57 C59.99 84.61 63.4 84.68 66.81 84.75 C67.99 84.76 69.16 84.76 70.37 84.77 C77.44 84.95 83.13 85.38 88.31 90.56 C90.15 93.07 91.44 95.66 92.69 98.5 C93.02 99.19 93.34 99.88 93.68 100.59 C96.91 107.48 100.28 114.8 97.67 122.43 C94.93 128.19 91.15 132.2 86.56 136.56 C85.87 137.24 85.17 137.92 84.45 138.62 C82.75 140.28 81.03 141.92 79.31 143.56 C80.03 143.57 80.74 143.57 81.48 143.57 C84.76 143.61 88.03 143.68 91.31 143.75 C92.44 143.76 93.56 143.76 94.72 143.77 C101.76 143.95 106.98 144.72 112.31 149.56 C114.37 152.09 115.87 154.64 117.31 157.56 C117.78 158.47 118.25 159.39 118.73 160.32 C121.97 167.26 123.82 173.9 122.31 181.56 C119.33 187.68 115.32 191.95 110.48 196.68 C109.74 197.43 108.99 198.17 108.21 198.94 C105.84 201.3 103.45 203.65 101.06 206 C99.44 207.61 97.82 209.21 96.2 210.82 C92.25 214.74 88.28 218.66 84.31 222.56 C85.69 226.7 87.76 227.42 91.49 229.43 C95.75 231.14 100.04 231.62 104.59 232.11 C107.31 232.56 107.31 232.56 109.31 234.56 C109.56 237.56 109.56 237.56 109.31 240.56 C106.43 243.45 104.28 242.9 100.25 242.94 C93.77 242.91 88.83 242.04 83.31 238.56 C82.62 238.15 81.92 237.74 81.2 237.31 C70.76 230.41 67.84 218.87 63.31 207.56 C60.01 219.77 56.71 231.98 53.31 244.56 C65.26 245.11 65.26 245.11 74.41 241.39 C77.29 240.13 79.4 240.54 82.31 241.56 C83.82 244.57 83.9 246.23 83.31 249.56 C75.94 256.27 66.79 257.13 57.28 256.86 C45.18 255.95 34.87 247.71 26.75 239.06 C22.05 233.04 19.65 226.15 20.31 218.56 C18.83 219.31 18.83 219.31 17.31 220.06 C12.39 222.12 8.03 222.64 3.04 220.66 C-3.14 217.59 -8.45 214 -13.81 209.69 C-14.93 208.81 -14.93 208.81 -16.07 207.91 C-18.3 206.15 -20.5 204.36 -22.69 202.56 C-23.43 201.95 -24.18 201.35 -24.95 200.72 C-26.02 199.82 -26.02 199.82 -27.12 198.91 C-27.76 198.37 -28.4 197.84 -29.05 197.29 C-32.64 193.49 -33.56 188.57 -33.88 183.5 C-33.78 182.54 -33.78 182.54 -33.69 181.56 C-34.68 181.89 -35.67 182.22 -36.69 182.56 C-38.89 182.8 -38.89 182.8 -41.38 182.88 C-42.59 182.93 -42.59 182.93 -43.82 182.99 C-51.64 181.83 -57.7 176.5 -63.69 171.69 C-65.21 170.48 -66.73 169.28 -68.25 168.07 C-68.98 167.48 -69.72 166.9 -70.48 166.29 C-73.29 164.09 -76.17 161.99 -79.06 159.9 C-82.98 156.67 -83.78 152.67 -84.38 147.88 C-84.59 145.41 -84.69 143.04 -84.69 140.56 C-85.59 140.6 -86.5 140.63 -87.43 140.67 C-102.4 141 -110.21 136.5 -121.69 127.56 C-122.24 127.14 -122.78 126.71 -123.35 126.27 C-126.3 123.91 -128.59 121.7 -130.5 118.44 C-130.9 117.77 -131.3 117.11 -131.71 116.43 C-133.91 112.24 -133.94 108.24 -134 103.62 C-134.03 102.91 -134.06 102.19 -134.09 101.46 C-134.13 97.91 -133.97 95.94 -131.83 93.05 C-129.69 91.56 -129.69 91.56 -127.06 91.69 C-124.69 92.56 -124.69 92.56 -122.69 94.56 C-122.34 98.04 -122.24 101.49 -122.13 104.98 C-121.66 108.77 -120.58 111.27 -118.69 114.56 C-110.8 110.28 -102.95 105.94 -95.12 101.56 C-93.54 100.68 -93.54 100.68 -91.92 99.77 C-86.14 96.54 -80.44 93.24 -74.83 89.73 C-70.07 87.14 -64.96 86.73 -59.69 88.07 C-51.19 91.28 -41.31 98.76 -36.88 106.75 C-34.42 114.62 -36.11 121.32 -38.19 129.06 C-38.43 129.98 -38.66 130.9 -38.91 131.84 C-39.49 134.09 -40.09 136.33 -40.69 138.56 C-40.13 138.23 -39.57 137.91 -38.99 137.57 C-36.45 136.08 -33.91 134.6 -31.38 133.12 C-30.49 132.61 -29.61 132.09 -28.71 131.56 C-27.43 130.82 -27.43 130.82 -26.14 130.07 C-25.36 129.61 -24.58 129.16 -23.77 128.69 C-18.41 125.8 -13.15 125.85 -7.44 127.5 C1.26 131.71 10 138.41 14.62 147 C16.45 153.81 14.64 159.89 12.75 166.44 C12.26 168.14 11.78 169.85 11.31 171.55 C11.09 172.3 10.88 173.05 10.66 173.82 C10.54 174.39 10.43 174.97 10.31 175.56 C10.64 175.89 10.97 176.22 11.31 176.56 C12.11 176.12 12.11 176.12 12.92 175.66 C15.32 174.31 17.72 172.97 20.12 171.62 C20.96 171.16 21.79 170.69 22.65 170.21 C23.45 169.76 24.26 169.31 25.08 168.85 C25.82 168.43 26.56 168.02 27.32 167.59 C30.51 165.94 33.14 165.41 36.69 165.38 C37.44 165.36 38.19 165.35 38.96 165.33 C41.69 165.6 43.79 166.51 46.31 167.56 C45.87 166.54 45.87 166.54 45.41 165.5 C44.06 162.42 42.72 159.33 41.38 156.25 C40.91 155.18 40.44 154.11 39.96 153 C39.51 151.97 39.06 150.95 38.6 149.89 C38.18 148.94 37.77 147.99 37.34 147.01 C35.31 142.19 34.26 137.77 35.95 132.62 C36.98 130.22 38.15 127.9 39.31 125.56 C38.73 125.43 38.15 125.29 37.55 125.15 C36.77 124.94 35.99 124.72 35.19 124.5 C34.42 124.3 33.66 124.11 32.87 123.9 C24.78 119.66 21.73 110.67 18.36 102.71 C17.5 100.69 16.62 98.68 15.73 96.68 C8.73 80.57 8.73 80.57 11.62 72.25 C12.75 69.63 14.03 67.1 15.31 64.56 C14.16 64.05 13 63.53 11.81 63 C0.59 57.21 -3.86 48.8 -8.69 37.56 C-8.98 36.9 -9.27 36.23 -9.57 35.54 C-12.81 27.64 -13.25 18.16 -10.5 10 C-5.68 0.87 -5.68 0.87 0 0 Z M55.31 41.56 C50.78 46.04 46.26 50.52 41.75 55.01 C40.21 56.54 38.68 58.07 37.14 59.59 C34.92 61.78 32.71 63.97 30.51 66.17 C29.82 66.85 29.13 67.53 28.42 68.23 C27.78 68.87 27.14 69.51 26.48 70.17 C25.91 70.73 25.35 71.29 24.77 71.87 C23.21 73.69 22.22 75.34 21.31 77.56 C21.68 81.63 23.28 85.15 24.88 88.88 C25.33 89.94 25.79 91.01 26.25 92.11 C26.6 92.92 26.95 93.73 27.31 94.56 C33.95 88.99 40.15 83.04 46.32 76.96 C47.57 75.73 48.82 74.51 50.09 73.3 C51.92 71.53 53.74 69.74 55.55 67.94 C56.12 67.41 56.68 66.87 57.26 66.32 C60.94 62.62 62.18 59.98 62.31 54.56 C61.46 51.26 61.46 51.26 60 48.19 C59.55 47.15 59.1 46.11 58.64 45.04 C57.56 42.44 57.56 42.44 55.31 41.56 Z M32.31 105.56 C34.34 109.89 34.34 109.89 37.31 113.56 C41.92 115.04 46.57 115.57 51.31 114.56 C54.88 112.22 57.59 109.28 60.44 106.12 C61.2 105.32 61.97 104.52 62.76 103.69 C66.36 100.53 66.36 100.53 68.31 96.56 C64 96.3 59.69 96.14 55.38 96 C54.16 95.92 52.95 95.85 51.7 95.77 C42.23 95.54 38.01 98.03 32.31 105.56 Z M-61.69 100.56 C-63.46 106.85 -65.2 113.15 -66.92 119.46 C-67.51 121.6 -68.11 123.74 -68.71 125.88 C-69.58 128.96 -70.42 132.05 -71.26 135.13 C-71.53 136.09 -71.8 137.04 -72.08 138.02 C-73.45 143.14 -74.29 146.65 -71.69 151.56 C-69.65 153.41 -67.81 154.91 -65.56 156.44 C-65 156.84 -64.44 157.24 -63.86 157.66 C-62.48 158.64 -61.08 159.6 -59.69 160.56 C-57.95 157.96 -57.24 156.46 -56.43 153.55 C-56.1 152.35 -56.1 152.35 -55.76 151.13 C-55.52 150.26 -55.29 149.4 -55.05 148.51 C-54.81 147.62 -54.56 146.73 -54.31 145.81 C-53.8 143.92 -53.29 142.04 -52.78 140.15 C-52 137.27 -51.21 134.39 -50.41 131.52 C-49.92 129.68 -49.42 127.85 -48.93 126.01 C-48.57 124.73 -48.57 124.73 -48.2 123.42 C-46.98 118.81 -46.3 115.27 -47.69 110.56 C-49.34 108.48 -49.34 108.48 -51.5 106.88 C-52.19 106.31 -52.87 105.75 -53.58 105.18 C-54.28 104.64 -54.97 104.11 -55.69 103.56 C-56.39 103 -57.1 102.44 -57.82 101.86 C-59.58 100.37 -59.58 100.37 -61.69 100.56 Z M77.19 103.5 C76.53 104.14 75.87 104.78 75.19 105.44 C72.19 108.4 69.19 111.36 66.19 114.33 C64.61 115.9 63.02 117.46 61.43 119.01 C59.14 121.25 56.87 123.5 54.59 125.76 C53.88 126.45 53.17 127.14 52.43 127.85 C49.48 130.81 47.56 132.79 46.28 136.82 C46.32 140.61 47.65 143.59 49.25 146.94 C49.69 147.9 49.69 147.9 50.13 148.88 C50.84 150.45 51.58 152.01 52.31 153.56 C58.96 147.98 65.15 142.01 71.32 135.9 C72.57 134.67 73.83 133.44 75.09 132.22 C76.92 130.44 78.74 128.64 80.55 126.84 C81.12 126.3 81.68 125.76 82.26 125.2 C85.65 121.8 87.2 119.4 87.31 114.56 C86.44 111.94 85.55 109.66 84.38 107.19 C84.08 106.55 83.79 105.91 83.49 105.25 C82.78 103.68 82.05 102.12 81.31 100.56 C79.5 100.56 78.42 102.29 77.19 103.5 Z M-74.69 102.56 C-75.37 102.96 -76.05 103.36 -76.75 103.77 C-79.87 105.6 -83 107.42 -86.12 109.25 C-87.19 109.88 -88.26 110.5 -89.37 111.15 C-95.43 114.69 -101.52 118.19 -107.69 121.56 C-105.66 125.94 -103.74 127 -99.33 128.8 C-93.62 130.45 -88.26 130.28 -82.57 128.69 C-78.13 125.41 -77.55 121.26 -76.25 116.06 C-75.98 115.1 -75.72 114.14 -75.44 113.14 C-73.85 107.85 -73.85 107.85 -74.69 102.56 Z M-10.69 139.56 C-12.46 145.87 -14.2 152.19 -15.92 158.51 C-16.51 160.66 -17.11 162.81 -17.71 164.96 C-18.57 168.05 -19.42 171.14 -20.26 174.23 C-20.53 175.19 -20.8 176.15 -21.08 177.14 C-22.5 182.31 -22.5 182.31 -22 187.55 C-20.13 190.41 -17.85 192.26 -15.19 194.38 C-14.21 195.17 -13.23 195.96 -12.22 196.77 C-9.93 198.76 -9.93 198.76 -7.69 198.56 C-5.97 192.59 -4.26 186.62 -2.56 180.64 C-1.69 177.58 -0.81 174.53 0.08 171.48 C0.64 169.53 1.19 167.58 1.75 165.62 C2.02 164.71 2.29 163.79 2.57 162.85 C4.43 156.24 4.43 156.24 3.31 149.56 C1.66 147.48 1.66 147.48 -0.5 145.88 C-1.19 145.31 -1.87 144.75 -2.58 144.18 C-3.28 143.64 -3.97 143.11 -4.69 142.56 C-5.39 142 -6.1 141.44 -6.82 140.86 C-8.58 139.37 -8.58 139.37 -10.69 139.56 Z M-23.69 141.56 C-27.32 143.5 -30.91 145.49 -34.5 147.5 C-35.52 148.04 -36.55 148.59 -37.6 149.15 C-44.21 152.86 -44.21 152.86 -47.82 159.25 C-48.15 160.68 -48.44 162.12 -48.69 163.56 C-49.01 164.9 -49.34 166.23 -49.69 167.56 C-47.19 169.91 -45.37 171.4 -42 172.19 C-36.4 171.13 -32.56 169.92 -28.69 165.56 C-25.68 158.99 -21.33 148.63 -23.69 141.56 Z M57.31 164.56 C59.34 168.89 59.34 168.89 62.31 172.56 C66.92 174.04 71.57 174.57 76.31 173.56 C79.88 171.22 82.59 168.28 85.44 165.12 C86.2 164.32 86.97 163.52 87.76 162.69 C91.36 159.53 91.36 159.53 93.31 155.56 C89 155.3 84.69 155.14 80.38 155 C79.16 154.92 77.95 154.85 76.7 154.77 C67.23 154.54 63.01 157.03 57.31 164.56 Z M98.57 165.93 C98.01 166.49 97.44 167.05 96.86 167.62 C95.66 168.8 94.47 169.99 93.27 171.18 C91.46 172.97 89.64 174.75 87.81 176.53 C80.69 183.55 74.54 189.66 73.88 200.12 C74.08 204.7 75.49 208.39 77.31 212.56 C81.96 208.68 86.38 204.65 90.65 200.36 C91.21 199.8 91.78 199.23 92.36 198.65 C93.54 197.47 94.72 196.29 95.89 195.11 C97.7 193.3 99.51 191.49 101.32 189.69 C102.47 188.54 103.62 187.39 104.77 186.23 C105.32 185.69 105.86 185.16 106.41 184.6 C110.08 181.25 110.08 181.25 111.33 176.71 C110.77 170.71 109.04 165.92 106.31 160.56 C102.89 160.56 100.89 163.64 98.57 165.93 Z M40.31 178.56 C39.01 183.04 37.73 187.52 36.47 192 C36.04 193.52 35.6 195.04 35.16 196.56 C30.4 212.18 30.4 212.18 32.88 227.94 C35.23 232 38.58 234.79 42.31 237.56 C44.48 235.4 44.79 234.44 45.57 231.56 C45.9 230.32 45.9 230.32 46.24 229.06 C46.48 228.17 46.71 227.28 46.95 226.36 C47.19 225.44 47.44 224.52 47.69 223.58 C48.2 221.63 48.71 219.69 49.22 217.74 C50 214.77 50.79 211.8 51.59 208.83 C52.08 206.95 52.58 205.06 53.07 203.17 C53.31 202.28 53.55 201.39 53.8 200.48 C55.38 194.53 55.38 194.53 54.31 188.56 C52.64 186.58 52.64 186.58 50.5 184.94 C49.81 184.37 49.13 183.8 48.42 183.21 C47.72 182.67 47.03 182.12 46.31 181.56 C45.61 181 44.9 180.43 44.18 179.85 C42.42 178.37 42.42 178.37 40.31 178.56 Z M27.31 180.56 C23.68 182.5 20.09 184.49 16.5 186.5 C15.48 187.04 14.45 187.59 13.4 188.15 C6.79 191.86 6.79 191.86 3.18 198.25 C2.85 199.68 2.56 201.12 2.31 202.56 C1.99 203.9 1.66 205.23 1.31 206.56 C5.28 209.72 5.28 209.72 10.12 210.62 C18.07 208.08 18.07 208.08 23.62 202.23 C24.57 199.49 25.29 196.77 25.94 193.94 C26.32 192.51 26.32 192.51 26.71 191.05 C28.19 185.8 28.19 185.8 27.31 180.56 Z M64.31 183.56 C64.97 184.88 65.63 186.2 66.31 187.56 C66.64 186.24 66.97 184.92 67.31 183.56 C66.32 183.56 65.33 183.56 64.31 183.56 Z " fill="currentColor" transform="translate(133.6875,-0.5625)"/>
+                      <path d="M0 0 C3.56 0.19 3.56 0.19 5.56 2.19 C5.81 5.19 5.81 5.19 5.56 8.19 C3.56 10.19 3.56 10.19 0.06 10.5 C-1.67 10.35 -1.67 10.35 -3.44 10.19 C-5.44 7.19 -5.44 7.19 -5.12 4.06 C-4.21 0.23 -4.21 0.23 0 0 Z " fill="currentColor" transform="translate(151.4375,25.8125)"/>
+                    </svg>
+                  </span>
+                  <div class="project-title" style="margin-bottom:0;">SERAPH</div>
+                </div>
+                <div class="project-tags">
+                  <span class="project-tag">FastAPI</span>
+                  <span class="project-tag">Hugging Face Space</span>
+                  <span class="project-tag">ESM2</span>
+                  <span class="project-tag">BiLSTM</span>
+                </div>
+              </div>
+            </div>
+            
+            <p class="project-lead">
+              Live interactive interface for the SERAPH protein secondary structure model. You can test inputs directly in the iframe below or access the endpoint on Hugging Face.
+            </p>
+            <div class="ouroboros-stats">
+              <div class="ouroboros-stat">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+                75.31% Q3 accuracy on CB513
+              </div>
+              <div class="ouroboros-stat">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+                Per-residue H/E/C, no black box
+              </div>
+              <div class="ouroboros-stat">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+                Single-sequence, no MSA needed
+              </div>
+            </div>
+            <a href="https://pypcoder-seraph-api.hf.space" target="_blank" rel="noopener noreferrer" class="btn-magnetic ouroboros-play-btn">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+              Visit SERAPH
+            </a>
+          </article>
+          
+          <!-- LAB 02: Ouroboros — Q-Learning Snake -->
+          <article class="project-card" id="lab-2">
+            <div class="project-header">
+              <div>
+                <div class="project-title-row">
+                  <span class="ouroboros-icon-badge">
+                    <svg viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M0 0 C0.71 -0 1.42 -0.01 2.15 -0.01 C4.53 -0.02 6.91 -0.03 9.29 -0.03 C11 -0.04 12.71 -0.04 14.41 -0.05 C20.02 -0.07 25.63 -0.08 31.23 -0.09 C33.17 -0.1 35.1 -0.1 37.03 -0.1 C46.12 -0.12 55.2 -0.14 64.28 -0.15 C74.75 -0.15 85.22 -0.18 95.69 -0.22 C103.79 -0.25 111.89 -0.27 120 -0.27 C124.83 -0.27 129.66 -0.28 134.5 -0.31 C139.05 -0.33 143.6 -0.33 148.16 -0.32 C149.82 -0.32 151.49 -0.33 153.15 -0.34 C164.58 -0.43 175.67 0.09 184.45 8.37 C191.2 16.39 192.9 24.92 192.21 35.19 C191.24 42.47 187.2 48.53 181.7 53.21 C172.54 60.19 161.01 59.58 150.09 59.54 C148.4 59.54 146.71 59.54 145.02 59.55 C140.46 59.56 135.9 59.56 131.33 59.55 C126.54 59.54 121.75 59.55 116.96 59.55 C108.92 59.56 100.87 59.55 92.83 59.54 C83.55 59.52 74.27 59.53 64.99 59.54 C57 59.56 49.01 59.56 41.03 59.55 C36.26 59.55 31.5 59.55 26.74 59.56 C22.26 59.56 17.78 59.56 13.3 59.54 C11.67 59.54 10.03 59.54 8.39 59.55 C-3.44 59.59 -13.62 59.04 -23.07 51.19 C-29.58 44.48 -31.35 37.09 -31.37 27.98 C-31.21 19.82 -28.36 13.71 -22.89 7.72 C-16.13 1.96 -8.65 0.03 0 0 Z " fill="currentColor" transform="translate(31.050674438476563,180.8528289794922)"/>
+                      <path d="M0 0 C12.66 11.86 20.55 29.43 21.21 46.72 C21.24 48.81 21.25 50.91 21.25 53 C21.25 54.1 21.25 55.19 21.25 56.33 C21.07 68.31 19.14 78.59 12.88 88.94 C10.06 88.96 7.25 88.98 4.44 89 C3.64 89.01 2.83 89.02 2.01 89.03 C-0.04 89.03 -2.08 88.99 -4.12 88.94 C-4.45 88.61 -4.78 88.28 -5.12 87.94 C-5.12 85.86 -5.11 83.78 -5.06 81.7 C-4.77 69.12 -6.11 58.68 -13.12 47.94 C-13.68 47.05 -14.24 46.16 -14.81 45.25 C-22.03 38.04 -31.91 33.95 -42.06 33.56 C-52.29 33.93 -63.74 37.52 -71.19 44.75 C-75.27 47.79 -78.21 47.66 -83.12 46.94 C-90.74 45.57 -95.97 41.59 -101.12 35.94 C-104.12 31.44 -104.12 31.44 -104.12 28.94 C-109.21 32.24 -110.36 35.36 -112.12 40.94 C-115.5 41.56 -115.5 41.56 -119.12 41.94 C-121.12 39.94 -121.12 39.94 -121.14 37.91 C-120.98 36.75 -120.98 36.75 -120.81 35.56 C-120.66 34.41 -120.66 34.41 -120.51 33.23 C-120.15 31.09 -119.68 29.03 -119.12 26.94 C-120.58 25.98 -120.58 25.98 -122.06 25 C-125.13 22.94 -125.13 22.94 -126.12 21.94 C-126.25 18.94 -126.25 18.94 -126.12 15.94 C-125.12 14.94 -125.12 14.94 -121.94 14.69 C-117.84 14.96 -115.69 16 -112.12 17.94 C-109.39 18.64 -109.39 18.64 -107.12 18.94 C-107.1 18.03 -107.1 18.03 -107.08 17.1 C-106.59 8.43 -103.97 1.29 -97.62 -4.81 C-69.14 -27.44 -26.55 -22.08 0 0 Z M-76.12 3.94 C-78.31 5.7 -78.31 5.7 -78.32 7.88 C-78.29 8.96 -78.29 8.96 -78.25 10.06 C-78.21 11.34 -78.17 12.62 -78.12 13.94 C-76.15 14.93 -76.15 14.93 -74.12 15.94 C-73.13 15.28 -72.14 14.62 -71.12 13.94 C-70.69 12.03 -70.69 12.03 -70.81 9.94 C-70.82 9.24 -70.82 8.53 -70.82 7.81 C-70.98 5.7 -70.98 5.7 -73.12 3.94 C-74.12 3.94 -75.1 3.94 -76.12 3.94 Z " fill="currentColor" transform="translate(139.125,35.0625)"/>
+                      <path d="M0 0 C1.03 -0.01 2.07 -0.01 3.13 -0.02 C4.82 -0.03 4.82 -0.03 6.55 -0.03 C8.34 -0.04 8.34 -0.04 10.16 -0.05 C14.11 -0.07 18.06 -0.08 22.01 -0.09 C23.38 -0.1 24.74 -0.1 26.11 -0.1 C32.52 -0.12 38.94 -0.14 45.35 -0.15 C52.73 -0.15 60.11 -0.18 67.5 -0.22 C73.21 -0.25 78.93 -0.27 84.65 -0.27 C88.06 -0.27 91.47 -0.28 94.88 -0.31 C98.69 -0.33 102.5 -0.33 106.32 -0.32 C107.43 -0.34 108.54 -0.35 109.69 -0.36 C119.82 -0.29 128.69 2.02 136.16 9.15 C142.05 15.97 144.2 22.97 144.11 31.86 C143.76 35.45 142.6 37.98 140.89 41.15 C138.04 42.57 135.63 42.28 132.44 42.28 C131.77 42.28 131.1 42.29 130.41 42.29 C128.16 42.29 125.9 42.29 123.65 42.29 C122.04 42.3 120.43 42.3 118.82 42.3 C114.43 42.31 110.05 42.31 105.67 42.31 C102.01 42.32 98.35 42.32 94.7 42.32 C86.08 42.33 77.45 42.33 68.83 42.33 C59.93 42.33 51.02 42.34 42.12 42.36 C34.48 42.37 26.84 42.38 19.21 42.38 C14.64 42.38 10.08 42.38 5.51 42.39 C1.22 42.4 -3.07 42.4 -7.36 42.39 C-8.94 42.39 -10.52 42.39 -12.09 42.4 C-14.24 42.41 -16.39 42.4 -18.54 42.39 C-19.75 42.39 -20.95 42.4 -22.19 42.4 C-25.11 42.15 -25.11 42.15 -28.11 40.15 C-30.4 33.3 -30.28 23.85 -27.49 17.15 C-22.84 8.56 -16.76 3.45 -7.29 0.6 C-4.81 0.08 -2.53 0.01 0 0 Z " fill="currentColor" transform="translate(54.11451721191406,131.8528289794922)"/>
+                      <path d="M0 0 C7.65 4.7 11.9 11.73 14.76 20.13 C15.34 23.45 15.37 26.77 15.39 30.13 C15.42 30.82 15.44 31.5 15.46 32.21 C15.46 33.23 15.46 33.23 15.47 34.27 C15.48 34.88 15.49 35.49 15.5 36.12 C15.14 38.32 15.14 38.32 12.14 45.32 C3.89 45.32 -4.36 45.32 -12.86 45.32 C-14.96 40.05 -14.96 40.05 -13.86 36.32 C-13.15 25.72 -13.01 16.91 -20.29 8.5 C-22.77 6.39 -25.27 4.31 -27.86 2.32 C-27.04 0.38 -27.04 0.38 -25.86 -1.68 C-17.85 -4.35 -7.58 -3.61 0 0 Z " fill="currentColor" transform="translate(111.85546875,78.68359375)"/>
+                      <path d="M0 0 C3.48 2.25 5.55 4.13 7 8 C7.98 18.91 7.83 28.7 0.94 37.68 C-8.37 48.51 -8.37 48.51 -14.75 49.38 C-17 49 -17 49 -19 47 C-19.04 44.19 -18.99 41.43 -18.88 38.62 C-18.72 31.68 -19.37 26.09 -22.03 19.58 C-23.15 16.61 -23.87 14.18 -24 11 C-18.61 2.69 -9.94 -2.81 0 0 Z " fill="currentColor" transform="translate(249,176)"/>
+                    </svg>
+                  </span>
+                  <span class="project-title" style="margin-bottom:0;">Ouroboros</span>
+                </div>
+                <div class="project-tags">
+                  <span class="project-tag">Tabular Q-Learning</span>
+                  <span class="project-tag">Self-Play RL</span>
+                  <span class="project-tag">Canvas 2D</span>
+                </div>
+              </div>
+            </div>
+
+            <p class="project-lead">
+              A snake that learned to hunt entirely through self-play. Race it head-to-head for food, or expand its live reasoning panel to watch its Q-values update in real time, move by move.
+            </p>
+
+            <div class="ouroboros-stats">
+              <div class="ouroboros-stat">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="14" y="14" width="4" height="6" rx="2"/><rect x="6" y="4" width="4" height="6" rx="2"/><path d="M6 20h4"/><path d="M14 10h4"/><path d="M6 14h2v6"/><path d="M14 4h2v6"/></svg>
+                1,236 states mapped
+              </div>
+              <div class="ouroboros-stat">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+                Live reasoning, no black box
+              </div>
+              <div class="ouroboros-stat">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+                Instant greedy inference
+              </div>
+            </div>
+
+            <a href="snake.html" class="btn-magnetic ouroboros-play-btn">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+              Play Ouroboros
+            </a>
+          </article>
+          
+          <!-- Coming Soon -->
+          <article class="project-card coming-soon-card reveal">
+            <div class="coming-soon-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l1.8 5.4L19 9l-5.2 1.6L12 16l-1.8-5.4L5 9l5.2-1.6z"/><path d="M19 15l.7 2.1L22 18l-2.3.9L19 21l-.7-2.1L16 18l2.3-.9z"/></svg>
+            </div>
+            <div class="project-title">More Labs & Games Coming Soon</div>
+            <p class="project-lead">
+              New interactive builds land here as they're finished — small games, live demos, and experiments worth playing with. Check back soon.
+            </p>
+            <div class="coming-soon-dots">
+              <span></span><span></span><span></span>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <footer class="footer">
+        <div class="copyright">
+          © 2026 Muhammad Asad Ullah (PypCoder). All rights reserved.
+        </div>
+      </footer>
+    </main>
+  </div>
+
+  <script>
+    // Intro Screen Sequence
+    const writingText = document.querySelector('.writing-text');
+    const introScreen = document.getElementById('intro-screen');
+    const mainContent = document.getElementById('main-content');
+
+    writingText.addEventListener('animationend', (e) => {
+      if (e.animationName === 'textFade') {
+        setTimeout(() => {
+          introScreen.classList.add('fade-out');
+          document.body.style.overflow = 'auto';
+          mainContent.classList.add('visible');
+        }, 300);
+      }
+    });
+
+    // Magnetic Buttons
+    document.querySelectorAll('.btn-magnetic').forEach((btn) => {
+      btn.addEventListener('mousemove', (e) => {
+        const rect = btn.getBoundingClientRect();
+        const x = e.clientX - rect.left - rect.width / 2;
+        const y = e.clientY - rect.top - rect.height / 2;
+        btn.style.transform = `translate(${x * 0.18}px, ${y * 0.18}px)`;
+      });
+      btn.addEventListener('mouseleave', () => {
+        btn.style.transform = 'translate(0px, 0px)';
+      });
+    });
+
+    // Ambient Spotlight
+    const spotlight = document.getElementById('spotlight');
+    window.addEventListener('mousemove', (e) => {
+      spotlight.style.left = `${e.clientX}px`;
+      spotlight.style.top = `${e.clientY}px`;
+    });
+
+    // Reveal Observer
+    const revealObserver = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('active');
+        }
+      });
+    }, { threshold: 0.1 });
+    
+    document.querySelectorAll('.reveal').forEach((el) => revealObserver.observe(el));
+  </script>
+</body>
+</html>

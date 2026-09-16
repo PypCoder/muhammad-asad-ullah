@@ -1,0 +1,1270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Ouroboros — Playground | Muhammad Asad Ullah</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600&family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Space+Grotesk:wght@500;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg-base: #060608;
+      --bg-surface: rgba(255, 255, 255, 0.025);
+      --bg-surface-hover: rgba(255, 255, 255, 0.05);
+      --bg-glass: rgba(10, 10, 14, 0.78);
+      --border-subtle: rgba(255, 255, 255, 0.08);
+      --border-accent: rgba(255, 255, 255, 0.22);
+      
+      --text-main: #f5f5f7;
+      --text-muted: #8e8e93;
+      --text-dim: #55555a;
+      
+      --player-color: #4169E1;
+      --ai-color: #FF6B6B;
+      --food-color: #10b981;
+      --accent-glow: rgba(255, 107, 107, 0.15);
+
+      --font-heading: 'Space Grotesk', -apple-system, sans-serif;
+      --font-body: 'Plus Jakarta Sans', -apple-system, sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+      --font-handwriting: 'Caveat', cursive;
+
+      --ease-apple: cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html {
+      scroll-behavior: smooth;
+      background-color: var(--bg-base);
+    }
+
+    body {
+      background-color: var(--bg-base);
+      color: var(--text-main);
+      font-family: var(--font-body);
+      -webkit-font-smoothing: antialiased;
+      background-image: radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.035) 0%, transparent 60%);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+      overflow-y: hidden;
+      touch-action: pan-y;
+    }
+
+    #spotlight {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 500px;
+      height: 500px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(255, 255, 255, 0.03) 0%, transparent 70%);
+      pointer-events: none;
+      transform: translate(-50%, -50%);
+      z-index: 1;
+      transition: opacity 0.4s var(--ease-apple);
+    }
+
+    #main-content {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      opacity: 0;
+      transform: translateY(12px);
+      transition: opacity 0.8s var(--ease-apple), transform 0.8s var(--ease-apple);
+    }
+
+    #main-content.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* Handwriting intro screen — matches the portfolio & playground intro exactly */
+    #intro-screen {
+      position: fixed;
+      inset: 0;
+      background: #000000;
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      transition: opacity 0.7s var(--ease-apple), visibility 0.7s;
+    }
+
+    #intro-screen.fade-out {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    .hello-path-svg {
+      width: clamp(260px, 50vw, 400px);
+      height: 120px;
+      overflow: visible;
+    }
+
+    .writing-text {
+      font-family: var(--font-handwriting);
+      font-size: 64px;
+      fill: transparent;
+      stroke: #ffffff;
+      stroke-width: 1.5;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      stroke-dasharray: 600;
+      stroke-dashoffset: 600;
+      animation: smoothWrite 2.5s cubic-bezier(0.45, 0, 0.15, 1) forwards, textFade 0.6s ease 1.5s forwards;
+    }
+
+    @keyframes smoothWrite { to { stroke-dashoffset: 0; } }
+    @keyframes textFade { to { fill: #ffffff; } }
+
+    @media (prefers-reduced-motion: reduce) {
+      .writing-text { fill: #ffffff; stroke-dashoffset: 0; animation: none; }
+    }
+
+    .navbar {
+      padding: 16px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--bg-glass);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border-subtle);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .nav-brand {
+      font-family: var(--font-heading);
+      font-weight: 700;
+      font-size: 1.05rem;
+      color: var(--text-main);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: opacity 0.2s;
+    }
+
+    .nav-brand:hover { opacity: 0.85; }
+
+    .main-container {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px 16px;
+      max-width: 1000px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    .header-section {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .title {
+      font-family: var(--font-heading);
+      font-size: clamp(2rem, 6vw, 3.4rem);
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      margin-bottom: 4px;
+      background: linear-gradient(180deg, #ffffff 0%, rgba(255, 255, 255, 0.7) 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .subtitle {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      max-width: 420px;
+      margin: 0 auto;
+      line-height: 1.4;
+    }
+
+    /* Mode, Target Score & Pace strip */
+    .controls-bar {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+      margin-bottom: 20px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      padding: 8px 16px;
+      border-radius: 99px;
+      flex-wrap: wrap;
+    }
+
+    .controls-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .controls-divider {
+      width: 1px;
+      height: 16px;
+      background: var(--border-subtle);
+    }
+
+    .controls-label {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .score-selector {
+      display: flex;
+      gap: 4px;
+    }
+
+    .btn-chip {
+      background: transparent;
+      border: 1px solid transparent;
+      color: var(--text-muted);
+      padding: 6px 14px;
+      border-radius: 99px;
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s var(--ease-apple);
+    }
+
+    .btn-chip:hover { color: var(--text-main); }
+
+    .btn-chip.active {
+      background: linear-gradient(135deg, var(--player-color), #7b93ee);
+      color: #ffffff;
+      box-shadow: 0 2px 10px rgba(65, 105, 225, 0.45);
+    }
+
+    .speed-value {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--food-color);
+      font-weight: 600;
+      transition: color 0.3s var(--ease-apple);
+    }
+
+    /* Scoreboard */
+    .scoreboard {
+      display: flex;
+      gap: 16px;
+      width: 100%;
+      max-width: 600px;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+
+    .score-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 12px;
+      padding: 10px 16px;
+      flex: 1;
+      text-align: center;
+      position: relative;
+    }
+
+    .score-card.player { border-top: 3px solid var(--player-color); }
+    .score-card.ai { border-top: 3px solid var(--ai-color); }
+
+    .score-label {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text-muted);
+    }
+
+    .score-value {
+      font-family: var(--font-mono);
+      font-size: clamp(1.4rem, 4vw, 1.8rem);
+      font-weight: 600;
+      color: var(--text-main);
+    }
+
+    .streak-indicator {
+      font-size: 0.7rem;
+      font-weight: 500;
+      opacity: 0.8;
+    }
+
+    /* Game Area */
+    .game-wrapper {
+      position: relative;
+      width: 100%;
+      max-width: min(600px, 100%);
+      max-height: min(600px, 50vh); 
+      aspect-ratio: 1 / 1;
+      background: #000000;
+      border: 1px solid var(--border-subtle);
+      border-radius: 16px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+      overflow: hidden;
+      margin: 0 auto;
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+      image-rendering: -webkit-optimize-contrast; 
+    }
+
+    /* Overlays */
+    .overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(6, 6, 8, 0.92);
+      backdrop-filter: blur(8px);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.4s var(--ease-apple);
+      z-index: 10;
+    }
+
+    .overlay.visible {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .overlay-title {
+      font-family: var(--font-heading);
+      font-size: clamp(1.8rem, 5vw, 2.5rem);
+      font-weight: 700;
+      margin-bottom: 8px;
+      text-align: center;
+    }
+
+    .overlay-msg {
+      color: var(--text-muted);
+      margin-bottom: 20px;
+      text-align: center;
+      font-size: 0.9rem;
+      max-width: 400px;
+      line-height: 1.5;
+    }
+    
+    #score-custom {
+  width: 64px;
+  text-align: center;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: 99px;
+  color: var(--text-main);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 6px 10px;
+  outline: none;
+  transition: all 0.2s var(--ease-apple);
+  -moz-appearance: textfield;
+}
+
+#score-custom::placeholder {
+  color: var(--text-dim);
+}
+
+#score-custom:hover {
+  border-color: var(--border-accent);
+}
+
+#score-custom:focus {
+  border-color: var(--player-color);
+  box-shadow: 0 0 0 2px rgba(65, 105, 225, 0.25);
+}
+
+/* remove native number spinner arrows for a cleaner pill look */
+#score-custom::-webkit-outer-spin-button,
+#score-custom::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+      background: linear-gradient(135deg, var(--player-color), var(--ai-color));
+      color: #ffffff;
+      padding: 14px 30px;
+      border-radius: 99px;
+      font-family: var(--font-heading);
+      font-weight: 700;
+      font-size: 1rem;
+      letter-spacing: -0.01em;
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+      transition: transform 0.15s var(--ease-apple), box-shadow 0.15s var(--ease-apple);
+    }
+
+    .btn-primary svg { width: 16px; height: 16px; flex-shrink: 0; }
+
+    .btn-primary:active {
+      transform: scale(0.95);
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
+    }
+
+    .btn-primary.cta-pulse {
+      animation: ctaPulse 2.2s ease-in-out infinite;
+    }
+
+    @keyframes ctaPulse {
+      0%, 100% { box-shadow: 0 8px 24px rgba(0,0,0,0.4), 0 0 0 0 rgba(255, 107, 107, 0.45); }
+      50% { box-shadow: 0 8px 24px rgba(0,0,0,0.4), 0 0 0 12px rgba(255, 107, 107, 0); }
+    }
+
+    /* AI Internals Telemetry Panel */
+    .telemetry-card {
+      margin-top: 16px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 12px;
+      padding: 14px 18px;
+      width: 100%;
+      max-width: 600px;
+      font-family: var(--font-mono);
+    }
+
+    .telemetry-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border-subtle);
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .telemetry-header-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .chevron {
+      width: 14px;
+      height: 14px;
+      color: var(--text-muted);
+      transition: transform 0.3s var(--ease-apple);
+      flex-shrink: 0;
+    }
+
+    .telemetry-card.expanded .chevron { transform: rotate(180deg); }
+
+    .telemetry-title {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--ai-color);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: 600;
+    }
+
+    .pulse-dot {
+      width: 6px;
+      height: 6px;
+      background: var(--ai-color);
+      border-radius: 50%;
+      box-shadow: 0 0 8px var(--ai-color);
+      animation: pulse 1.5s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.8); }
+    }
+
+    .telemetry-body {
+      overflow: hidden;
+      max-height: 0;
+      opacity: 0;
+      margin-top: 0;
+      transition: max-height 0.35s var(--ease-apple), opacity 0.25s var(--ease-apple), margin-top 0.35s var(--ease-apple);
+    }
+
+    .telemetry-card.expanded .telemetry-body {
+      max-height: 300px;
+      opacity: 1;
+      margin-top: 10px;
+    }
+
+    .state-repr {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-bottom: 10px;
+      word-break: break-all;
+    }
+
+    .state-repr span {
+      color: var(--text-main);
+    }
+
+    .q-actions-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+
+    .q-action-box {
+      background: rgba(0, 0, 0, 0.4);
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      padding: 8px;
+      text-align: center;
+      transition: all 0.2s var(--ease-apple);
+    }
+
+    .q-action-box.selected {
+      border-color: var(--ai-color);
+      background: var(--accent-glow);
+    }
+
+    .q-action-label {
+      font-size: 0.65rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      margin-bottom: 2px;
+    }
+
+    .q-action-val {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-main);
+    }
+
+    /* Mobile Controls (D-PAD) */
+    .mobile-controls {
+      display: none;
+      grid-template-columns: repeat(3, min(17vw, 64px));
+      grid-template-rows: repeat(2, min(17vw, 64px));
+      gap: 10px;
+      margin-top: 20px;
+      justify-content: center;
+      width: 100%;
+      user-select: none;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-controls { display: grid; }
+    }
+
+    .ctrl-btn {
+      background: linear-gradient(145deg, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0.02));
+      border: 1px solid var(--border-subtle);
+      border-radius: 16px;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+      transition: transform 0.12s var(--ease-apple), background 0.12s var(--ease-apple), box-shadow 0.12s var(--ease-apple);
+    }
+
+    .ctrl-btn svg { width: 26px; height: 26px; opacity: 0.9; }
+    .ctrl-btn:active {
+      background: var(--bg-surface-hover);
+      transform: scale(0.9);
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+    }
+
+    .ctrl-btn.up    { grid-column: 2; grid-row: 1; }
+    .ctrl-btn.left  { grid-column: 1; grid-row: 2; }
+    .ctrl-btn.down  { grid-column: 2; grid-row: 2; }
+    .ctrl-btn.right { grid-column: 3; grid-row: 2; }
+  </style>
+</head>
+<body>
+
+  <!-- Ambient Light Follower -->
+  <div id="spotlight"></div>
+
+  <!-- Ultra-Smooth Vector Writing Intro -->
+  <div id="intro-screen">
+    <svg class="hello-path-svg" viewBox="0 0 350 120">
+      <text class="writing-text" x="50%" y="50%" text-anchor="middle" dominant-baseline="middle">ouroboros.</text>
+    </svg>
+  </div>
+
+  <div id="main-content">
+
+  <nav class="navbar">
+    <a href="playground.html" class="nav-brand">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+      Back
+    </a>
+  </nav>
+
+  <div class="main-container">
+    <div class="header-section">
+      <h1 class="title">Ouroboros</h1>
+      <p class="subtitle">A Q-learning snake that trained entirely through self-play. Race it for food, or watch what it's thinking below.</p>
+    </div>
+
+    <!-- Target Score Selector + Pace readout -->
+    <div class="controls-bar">
+      <div class="controls-group">
+        <span class="controls-label">Goal:</span>
+        <div class="score-selector">
+          <button class="btn-chip" data-score="10">10</button>
+          <button class="btn-chip active" data-score="15">15</button>
+          <button class="btn-chip" data-score="20">20</button>
+          <button class="btn-chip" data-score="Infinity">Infinite</button>
+          <input type="number" id="score-custom" class="btn-chip" placeholder="Custom" min="1" style="width:60px;">
+        </div>
+      </div>
+      <div class="controls-divider"></div>
+      <div class="controls-group">
+        <span class="controls-label">Pace:</span>
+        <span class="speed-value" id="speed-value">1.00×</span>
+      </div>
+    </div>
+
+    <!-- Ouroboros' Live Reasoning (collapsible) -->
+    <div class="telemetry-card" id="telemetry-card">
+      <div class="telemetry-header" id="telemetry-toggle">
+        <div class="telemetry-title">
+          <div class="pulse-dot"></div>
+          Ouroboros — Live Reasoning
+        </div>
+        <div class="telemetry-header-right">
+          <span id="telemetry-status" style="font-size: 0.65rem; color: var(--text-muted);">LIVE INFERENCE</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg>
+        </div>
+      </div>
+
+      <div class="telemetry-body">
+        <div class="state-repr">
+          State: <span id="telemetry-state">Waiting for match to start…</span>
+        </div>
+
+        <div class="q-actions-grid">
+          <div class="q-action-box" id="q-box-0">
+            <div class="q-action-label">Left</div>
+            <div class="q-action-val" id="q-val-0">0.00</div>
+          </div>
+          <div class="q-action-box" id="q-box-1">
+            <div class="q-action-label">Straight</div>
+            <div class="q-action-val" id="q-val-1">0.00</div>
+          </div>
+          <div class="q-action-box" id="q-box-2">
+            <div class="q-action-label">Right</div>
+            <div class="q-action-val" id="q-val-2">0.00</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Scoreboard -->
+    <div class="scoreboard">
+      <div class="score-card player">
+        <div class="score-label">Player</div>
+        <div class="score-value" id="score-player">0</div>
+        <div class="streak-indicator" id="streak-player" style="color: var(--player-color)">Streak: 0</div>
+      </div>
+      <div class="score-card ai">
+        <div class="score-label">Ouroboros</div>
+        <div class="score-value" id="score-ai">0</div>
+        <div class="streak-indicator" id="streak-ai" style="color: var(--ai-color)">Streak: 0</div>
+      </div>
+    </div>
+
+    <!-- Canvas Game Area -->
+    <div class="game-wrapper">
+      <canvas id="gameCanvas" width="600" height="600"></canvas>
+      
+      <div class="overlay" id="overlay-loading">
+        <div class="overlay-title" style="font-size: 1.5rem;">Loading Ouroboros...</div>
+      </div>
+
+      <div class="overlay" id="overlay-error">
+        <div class="overlay-title" style="color: var(--ai-color);">Q-Table Missing</div>
+        <div class="overlay-msg">Could not fetch <code>q_table.json</code>. Ensure the file is present in the root directory to run Ouroboros.</div>
+      </div>
+
+      <div class="overlay" id="overlay-ready">
+        <div class="overlay-title">Ready?</div>
+        <div class="overlay-msg">First to <span id="ready-goal">5</span> food wins. Ouroboros plays greedily off what it learned in training — no hand-holding.</div>
+        <button class="btn-primary cta-pulse" id="btn-start">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+          Start Match
+        </button>
+      </div>
+
+      <div class="overlay" id="overlay-end">
+        <div class="overlay-title" id="end-title">Game Over</div>
+        <div class="overlay-msg" id="end-msg">Player wins!</div>
+        <button class="btn-primary cta-pulse" id="btn-restart">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M4 4v6h6M20 20v-6h-6"/><path d="M4.5 15a8 8 0 0014.5 3.5M19.5 9A8 8 0 005 5.5"/></svg>
+          Play Again
+        </button>
+      </div>
+    </div>
+
+    <!-- Mobile Controls -->
+    <div class="mobile-controls">
+      <button class="ctrl-btn up" id="btn-up" aria-label="Up"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 15l-6-6-6 6"/></svg></button>
+      <button class="ctrl-btn left" id="btn-left" aria-label="Left"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <button class="ctrl-btn down" id="btn-down" aria-label="Down"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg></button>
+      <button class="ctrl-btn right" id="btn-right" aria-label="Right"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg></button>
+    </div>
+  </div>
+
+  </div>
+
+  <script>
+// ---- Intro sequence & ambient spotlight (matches portfolio/playground) ----
+const writingText = document.querySelector('.writing-text');
+const introScreen = document.getElementById('intro-screen');
+const mainContent = document.getElementById('main-content');
+
+function revealMainContent() {
+  introScreen.classList.add('fade-out');
+  document.body.style.overflow = 'auto';
+  mainContent.classList.add('visible');
+}
+
+if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+  // The CSS skips the draw animation for these users, so animationend never
+  // fires — reveal immediately instead of leaving them stuck behind the intro.
+  revealMainContent();
+} else {
+  writingText.addEventListener('animationend', (e) => {
+    if (e.animationName === 'textFade') setTimeout(revealMainContent, 300);
+  });
+}
+
+const spotlight = document.getElementById('spotlight');
+window.addEventListener('mousemove', (e) => {
+  spotlight.style.left = `${e.clientX}px`;
+  spotlight.style.top = `${e.clientY}px`;
+});
+
+/* ============================================================
+   Q-Learning Snake — corrected game engine
+   State/action encoding matches snake.py exactly:
+     Action indices:  0 = TURN_LEFT    (heading -1)
+                       1 = GO_STRAIGHT (heading  0)
+                       2 = TURN_RIGHT  (heading +1)
+     State tuple (12 fields, comma-joined, matches q_table.json keys):
+       danger_straight, danger_left, danger_right,
+       food_up, food_down, food_left, food_right,
+       opp_up, opp_down, opp_left, opp_right,
+       heading
+   ============================================================ */
+
+const GRID_SIZE = 15;      // must match snake.py's GRID_SIZE
+const SNAKE_LENGTH = 4;    // fixed length, never grows — matches training
+
+const BASE_TICK_MS = 250;
+const MIN_TICK_MS = 80;
+const DECREMENT_PER_POINT = 6;
+
+// Headings — clockwise, matches snake.py (UP=0, RIGHT=1, DOWN=2, LEFT=3)
+const UP = 0, RIGHT = 1, DOWN = 2, LEFT = 3;
+const DIRS = [
+  { dx: 0, dy: -1 }, // UP
+  { dx: 1, dy: 0 },  // RIGHT
+  { dx: 0, dy: 1 },  // DOWN
+  { dx: -1, dy: 0 }  // LEFT
+];
+
+// Relative actions — index order MUST match the Q-table's array order
+const ACTION_LEFT = 0, ACTION_STRAIGHT = 1, ACTION_RIGHT = 2;
+const TURN_DELTA = { 0: -1, 1: 0, 2: 1 };
+
+function applyTurn(heading, action) {
+  return (heading + TURN_DELTA[action] + 4) % 4;
+}
+
+function stepFrom(head, heading) {
+  const d = DIRS[heading];
+  return [head.x + d.dx, head.y + d.dy];
+}
+
+/** True if (nx,ny) is a wall or occupied by any body segment EXCLUDING each
+ *  snake's own tail cell (which vacates this tick) — mirrors snake.py's
+ *  danger check, which looks at self_body[:-1] and opp_body[:-1]. */
+function isOccupied(nx, ny, snakeA, snakeB) {
+  if (nx < 0 || nx >= GRID_SIZE || ny < 0 || ny >= GRID_SIZE) return true;
+  const hitsBody = (body) => body.slice(0, -1).some(s => s.x === nx && s.y === ny);
+  return hitsBody(snakeA.body) || hitsBody(snakeB.body);
+}
+
+// ---- Q-learning AI ------------------------------------------------------
+
+class QLearningSnakeAI {
+  constructor() { this.qTable = null; }
+  loadQTable(data) { this.qTable = data; }
+
+  /** Build the exact 12-field state key used during training. */
+  getStateKey(snake, opponent, food) {
+    const head = snake.body[0];
+    const oppHead = opponent.body[0];
+
+    const dangerStraight = isOccupied(...stepFrom(head, applyTurn(snake.heading, ACTION_STRAIGHT)), snake, opponent);
+    const dangerLeft     = isOccupied(...stepFrom(head, applyTurn(snake.heading, ACTION_LEFT)),     snake, opponent);
+    const dangerRight    = isOccupied(...stepFrom(head, applyTurn(snake.heading, ACTION_RIGHT)),    snake, opponent);
+
+    const foodUp    = food.y < head.y;
+    const foodDown  = food.y > head.y;
+    const foodLeft  = food.x < head.x;
+    const foodRight = food.x > head.x;
+
+    const oppUp    = oppHead.y < head.y;
+    const oppDown  = oppHead.y > head.y;
+    const oppLeft  = oppHead.x < head.x;
+    const oppRight = oppHead.x > head.x;
+
+    return [
+      dangerStraight, dangerLeft, dangerRight,
+      foodUp, foodDown, foodLeft, foodRight,
+      oppUp, oppDown, oppLeft, oppRight,
+      snake.heading
+    ].join(',');
+  }
+
+  /** Returns { action, qVals, stateKey, mapped } using greedy (epsilon=0) lookup. */
+  decide(snake, opponent, food) {
+    const stateKey = this.getStateKey(snake, opponent, food);
+    const qVals = this.qTable ? this.qTable[stateKey] : undefined;
+
+    if (qVals) {
+      const best = qVals.indexOf(Math.max(...qVals));
+      return { action: best, qVals, stateKey, mapped: true };
+    }
+
+    // Unseen state — fall back to a locally-safe move instead of guessing.
+    const safe = (action) => {
+      const [nx, ny] = stepFrom(snake.body[0], applyTurn(snake.heading, action));
+      return !isOccupied(nx, ny, snake, opponent);
+    };
+    let action = ACTION_STRAIGHT;
+    if (!safe(ACTION_STRAIGHT)) {
+      if (safe(ACTION_LEFT)) action = ACTION_LEFT;
+      else if (safe(ACTION_RIGHT)) action = ACTION_RIGHT;
+    }
+    return { action, qVals: [0, 0, 0], stateKey, mapped: false };
+  }
+}
+
+// ---- Game state -----------------------------------------------------
+
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d', { alpha: false });
+const scoreP = document.getElementById('score-player');
+const scoreA = document.getElementById('score-ai');
+const streakP = document.getElementById('streak-player');
+const streakA = document.getElementById('streak-ai');
+
+const aiAgent = new QLearningSnakeAI();
+let targetScore = 5;
+let gameState = 'loading'; // loading | error | ready | playing | ended
+let player, ai, food;
+let lastTime = 0, accumulator = 0, currentTickMs = BASE_TICK_MS;
+
+function createSnake(headX, headY, heading, type) {
+  const d = DIRS[heading];
+  const body = [];
+  for (let i = 0; i < SNAKE_LENGTH; i++) {
+    const x = headX - d.dx * i, y = headY - d.dy * i;
+    body.push({ x, y, prevX: x, prevY: y });
+  }
+  return { body, heading, nextHeading: heading, score: 0, streak: 0, dead: false, type };
+}
+
+function spawnFood() {
+  let fx, fy, clear;
+  do {
+    fx = Math.floor(Math.random() * GRID_SIZE);
+    fy = Math.floor(Math.random() * GRID_SIZE);
+    clear = !player.body.some(s => s.x === fx && s.y === fy) &&
+            !ai.body.some(s => s.x === fx && s.y === fy);
+  } while (!clear);
+  return { x: fx, y: fy };
+}
+
+async function init() {
+ const initialActive = document.querySelector('.btn-chip.active');
+if (initialActive) {
+  const val = initialActive.getAttribute('data-score');
+  targetScore = val === 'Infinity' ? Infinity : parseInt(val, 10);
+  document.getElementById('ready-goal').textContent = val === 'Infinity' ? '∞' : val;
+} document.getElementById('overlay-loading').classList.add('visible');
+  try {
+    const res = await fetch('./q_table.json');
+    if (!res.ok) throw new Error('missing');
+    aiAgent.loadQTable(await res.json());
+    document.getElementById('overlay-loading').classList.remove('visible');
+  } catch (err) {
+    document.getElementById('overlay-loading').classList.remove('visible');
+    document.getElementById('overlay-error').classList.add('visible');
+    gameState = 'error';
+    return;
+  }
+
+  document.querySelectorAll('.btn-chip').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      document.querySelectorAll('.btn-chip').forEach(b => b.classList.remove('active'));
+      e.target.classList.add('active');
+      const val = e.target.getAttribute('data-score');
+      targetScore = val === 'Infinity' ? Infinity : parseInt(val, 10);
+      document.getElementById('ready-goal').textContent = val === 'Infinity' ? '∞' : val;
+      document.getElementById('score-custom').value = ''; // clear custom field when a preset is picked
+      prepareRound();
+    });
+});
+
+document.getElementById('score-custom').addEventListener('input', (e) => {
+    const raw = e.target.value;
+    if (raw === '') return; // don't touch targetScore while the field is empty
+    const val = parseInt(raw, 10);
+    if (!Number.isFinite(val) || val < 1) return; // ignore anything not a valid positive number
+    document.querySelectorAll('.btn-chip').forEach(b => b.classList.remove('active'));
+    targetScore = val;
+    document.getElementById('ready-goal').textContent = val;
+});
+  document.getElementById('btn-start').addEventListener('click', beginRound);
+  document.getElementById('btn-restart').addEventListener('click', playAgain);
+  initMobileControls();
+  bindKeyboard();
+  bindSwipe();
+  document.getElementById('telemetry-toggle').addEventListener('click', () => {
+    document.getElementById('telemetry-card').classList.toggle('expanded');
+  });
+
+  prepareRound();
+  requestAnimationFrame(gameLoop);
+}
+
+/** Sets up a fresh board and waits for explicit user confirmation to start. */
+function prepareRound() {
+  if (gameState === 'error') return;
+  const midY = Math.floor(GRID_SIZE / 2);
+  player = createSnake(3, midY, RIGHT, 'player');
+  ai = createSnake(GRID_SIZE - 4, midY, LEFT, 'ai');
+  food = spawnFood();
+  currentTickMs = BASE_TICK_MS;
+  gameState = 'ready';
+  accumulator = 0;
+  updateScoreUI();
+  updateSpeedUI();
+  resetTelemetryUI();
+  document.getElementById('overlay-end').classList.remove('visible');
+  document.getElementById('overlay-ready').classList.add('visible');
+}
+
+/** Actually starts the simulation ticking — only called from a user click. */
+function beginRound() {
+  if (gameState === 'error') return;
+  gameState = 'playing';
+  accumulator = 0;
+  lastTime = performance.now();
+  document.getElementById('overlay-ready').classList.remove('visible');
+}
+
+/** "Play Again" is itself the explicit user action, so it starts immediately. */
+function playAgain() {
+  prepareRound();
+  beginRound();
+}
+
+// ---- Input ------------------------------------------------------------
+
+function handlePlayerInput(intendedDir) {
+  if (gameState !== 'playing') return;
+  // Block only the exact 180-degree reversal (no instant self head-on crash).
+  if (Math.abs(player.heading - intendedDir) !== 2) {
+    player.nextHeading = intendedDir;
+  }
+}
+
+function bindKeyboard() {
+  window.addEventListener('keydown', (e) => {
+    const keyMap = {
+      ArrowUp: UP, w: UP, W: UP,
+      ArrowRight: RIGHT, d: RIGHT, D: RIGHT,
+      ArrowDown: DOWN, s: DOWN, S: DOWN,
+      ArrowLeft: LEFT, a: LEFT, A: LEFT
+    };
+    if (e.key in keyMap) {
+      handlePlayerInput(keyMap[e.key]);
+      if (e.key.startsWith('Arrow')) e.preventDefault();
+    }
+  });
+}
+
+function initMobileControls() {
+  const bind = (id, dir) => {
+    document.getElementById(id).addEventListener('pointerdown', (e) => {
+      e.preventDefault();
+      handlePlayerInput(dir);
+    });
+  };
+  bind('btn-up', UP);
+  bind('btn-right', RIGHT);
+  bind('btn-down', DOWN);
+  bind('btn-left', LEFT);
+}
+
+/** Swipe-to-turn on the board itself — complements the D-pad on touch devices. */
+function bindSwipe() {
+  let sx = 0, sy = 0, tracking = false;
+  canvas.addEventListener('touchstart', (e) => {
+    tracking = true;
+    sx = e.touches[0].clientX; sy = e.touches[0].clientY;
+  }, { passive: true });
+  canvas.addEventListener('touchend', (e) => {
+    if (!tracking) return;
+    tracking = false;
+    const dx = e.changedTouches[0].clientX - sx;
+    const dy = e.changedTouches[0].clientY - sy;
+    if (Math.max(Math.abs(dx), Math.abs(dy)) < 24) return; // ignore taps
+    handlePlayerInput(Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? RIGHT : LEFT) : (dy > 0 ? DOWN : UP));
+  }, { passive: true });
+}
+
+// ---- Simulation tick ----------------------------------------------------
+
+function logicTick() {
+  // 1. Snapshot current positions for smooth interpolated rendering.
+  [player, ai].forEach(s => s.body.forEach(seg => { seg.prevX = seg.x; seg.prevY = seg.y; }));
+
+  // 2. Decide the AI's action from the CURRENT (pre-move) state — mirrors
+  //    the simultaneous env.step(a1, a2) call in snake.py exactly. Player's
+  //    queued direction was already captured on keypress/tap/swipe.
+  const { action: aiAction, qVals, stateKey, mapped } = aiAgent.decide(ai, player, food);
+  updateTelemetry(stateKey, qVals, aiAction, mapped);
+
+  // 3. Resolve new headings (player: absolute input; AI: relative turn).
+  player.heading = player.nextHeading;
+  ai.heading = applyTurn(ai.heading, aiAction);
+
+  // 4. Move both bodies simultaneously (slide window: new head in, tail out).
+  [player, ai].forEach(s => {
+    const d = DIRS[s.heading];
+    const oldHead = s.body[0];
+    const newHead = { x: oldHead.x + d.dx, y: oldHead.y + d.dy, prevX: oldHead.x, prevY: oldHead.y };
+    s.body.pop();
+    s.body.unshift(newHead);
+  });
+
+  // 5. Resolve collisions (wall / any body segment, own or opponent's / mutual head crash).
+  resolveCollisions();
+  if (player.dead || ai.dead) { endGame(); return; }
+
+  // 6. Resolve food pickups — fixed length always, no growth.
+  resolveFood();
+
+  updateScoreUI();
+}
+
+function resolveCollisions() {
+  const pHead = player.body[0], aHead = ai.body[0];
+  const isOOB = (h) => h.x < 0 || h.x >= GRID_SIZE || h.y < 0 || h.y >= GRID_SIZE;
+
+  if (isOOB(pHead)) player.dead = true;
+  if (isOOB(aHead)) ai.dead = true;
+
+  // After the move, body[1:] equals the pre-move body minus its tail —
+  // exactly the set snake.py's _is_collision checks against.
+  const hitsBody = (head, body) => body.slice(1).some(s => s.x === head.x && s.y === head.y);
+  if (hitsBody(pHead, player.body) || hitsBody(pHead, ai.body)) player.dead = true;
+  if (hitsBody(aHead, ai.body) || hitsBody(aHead, player.body)) ai.dead = true;
+
+  if (pHead.x === aHead.x && pHead.y === aHead.y) { player.dead = true; ai.dead = true; }
+}
+
+function resolveFood() {
+  const target = food; // capture once so both snakes check the same cell this tick
+  let eaten = false;
+  [player, ai].forEach(s => {
+    const head = s.body[0];
+    if (head.x === target.x && head.y === target.y) {
+      eaten = true;
+      s.score++;
+      s.streak++;
+      const other = s === player ? ai : player;
+      other.streak = 0; // scoring "steals" the glow from whoever else was on a streak
+      const combined = player.score + ai.score;
+      currentTickMs = Math.max(MIN_TICK_MS, BASE_TICK_MS - combined * DECREMENT_PER_POINT);
+      updateSpeedUI();
+      if (targetScore !== Infinity && s.score >= targetScore) {
+        endGame(s.type);
+      }
+    }
+  });
+  if (eaten && gameState === 'playing') food = spawnFood();
+}
+
+function endGame(winnerOverride = null) {
+  gameState = 'ended';
+  let title = 'Draw!', msg = 'Both snakes collided.';
+  if (winnerOverride === 'player' || (ai.dead && !player.dead)) {
+    title = 'Victory'; msg = 'Player wins the match!';
+  } else if (winnerOverride === 'ai' || (player.dead && !ai.dead)) {
+    title = 'Defeat'; msg = 'Ouroboros wins.';
+  }
+  document.getElementById('end-title').textContent = title;
+  document.getElementById('end-msg').textContent = msg;
+  document.getElementById('overlay-end').classList.add('visible');
+}
+
+/** Live "how much faster than base speed" readout — makes the speed-ramp
+ *  mechanic visible rather than just felt. */
+function updateSpeedUI() {
+  const el = document.getElementById('speed-value');
+  if (!el) return;
+  const mult = BASE_TICK_MS / currentTickMs;
+  el.textContent = mult.toFixed(2) + '×';
+  el.style.color = mult > 1.4 ? 'var(--ai-color)' : 'var(--food-color)';
+}
+
+function resetTelemetryUI() {
+  document.getElementById('telemetry-state').textContent = 'Waiting for match to start…';
+  [0, 1, 2].forEach(i => {
+    document.getElementById(`q-val-${i}`).textContent = '0.00';
+    document.getElementById(`q-box-${i}`).classList.remove('selected');
+  });
+}
+
+function updateScoreUI() {
+  const targetStr = targetScore === Infinity ? '' : `<span style="font-size:0.5em;color:var(--text-muted)">/${targetScore}</span>`;
+  scoreP.innerHTML = `${player.score}${targetStr}`;
+  scoreA.innerHTML = `${ai.score}${targetStr}`;    
+  streakP.textContent = `Streak: ${player.streak}`;
+  streakA.textContent = `Streak: ${ai.streak}`;
+  streakP.className = player.streak >= 2 ? 'streak-indicator active' : 'streak-indicator';
+  streakA.className = ai.streak >= 2 ? 'streak-indicator active' : 'streak-indicator';
+}
+
+function updateTelemetry(stateKey, qVals, chosenAction, mapped) {
+  const stateEl = document.getElementById('telemetry-state');
+  stateEl.textContent = mapped ? stateKey : `UNMAPPED: ${stateKey}`;
+  [0, 1, 2].forEach(i => {
+    document.getElementById(`q-val-${i}`).textContent = qVals[i] !== undefined ? qVals[i].toFixed(2) : 'N/A';
+    document.getElementById(`q-box-${i}`).classList.toggle('selected', mapped && i === chosenAction);
+  });
+}
+
+// ---- Render loop --------------------------------------------------------
+
+function smoothstep(t) { return t * t * (3 - 2 * t); }
+function lerp(a, b, t) { return a + (b - a) * t; }
+
+function gameLoop(time) {
+  let dt = time - lastTime;
+  lastTime = time;
+  dt = Math.min(dt, 250); // avoid a catch-up spiral if the tab was backgrounded
+
+  if (gameState === 'playing') {
+    accumulator += dt;
+    while (accumulator >= currentTickMs) {
+      logicTick();
+      accumulator -= currentTickMs;
+      if (gameState !== 'playing') break;
+    }
+  }
+
+  const rawT = gameState === 'playing' ? Math.min(accumulator / currentTickMs, 1) : 1;
+  render(smoothstep(rawT));
+  requestAnimationFrame(gameLoop);
+}
+
+function render(t) {
+  const cw = canvas.width, ch = canvas.height;
+  const cell = cw / GRID_SIZE;
+
+  ctx.fillStyle = '#060608';
+  ctx.fillRect(0, 0, cw, ch);
+
+  ctx.strokeStyle = 'rgba(255,255,255,0.03)';
+  ctx.lineWidth = 1;
+  for (let i = 0; i <= GRID_SIZE; i++) {
+    ctx.beginPath();
+    ctx.moveTo(i * cell, 0); ctx.lineTo(i * cell, ch);
+    ctx.moveTo(0, i * cell); ctx.lineTo(cw, i * cell);
+    ctx.stroke();
+  }
+
+  if (food) {
+    const pulse = 0.9 + 0.1 * Math.sin(performance.now() / 150);
+    const fx = food.x * cell + cell / 2, fy = food.y * cell + cell / 2;
+    const r = (cell / 2.5) * pulse;
+    ctx.save();
+    ctx.translate(fx, fy);
+    ctx.rotate(performance.now() / 1000);
+    ctx.fillStyle = '#10b981';
+    ctx.shadowBlur = 15;
+    ctx.shadowColor = '#10b981';
+    ctx.beginPath();
+    for (let i = 0; i < 4; i++) {
+      ctx.lineTo(0, -r); ctx.rotate(Math.PI / 4);
+      ctx.lineTo(0, -(r * 0.4)); ctx.rotate(Math.PI / 4);
+    }
+    ctx.closePath();
+    ctx.fill();
+    ctx.restore();
+  }
+
+  const drawSnake = (snake, rgb) => {
+    ctx.shadowBlur = snake.streak > 0 ? Math.min(snake.streak, 5) * 5 : 0;
+    ctx.shadowColor = `rgba(${rgb}, 0.8)`;
+    for (let i = SNAKE_LENGTH - 1; i >= 0; i--) {
+      const seg = snake.body[i];
+      const px = lerp(seg.prevX, seg.x, t) * cell;
+      const py = lerp(seg.prevY, seg.y, t) * cell;
+      const alpha = 1 - (i / SNAKE_LENGTH) * 0.6;
+      ctx.fillStyle = `rgba(${rgb}, ${alpha})`;
+      ctx.beginPath();
+      ctx.arc(px + cell / 2, py + cell / 2, cell / 2.2 - i * 1.2, 0, Math.PI * 2);
+      ctx.fill();
+      if (i === 0) {
+        ctx.fillStyle = '#ffffff';
+        ctx.shadowBlur = 0;
+        const d = DIRS[snake.heading];
+        const ex1 = px + cell / 2 + d.dy * cell * 0.15 + d.dx * cell * 0.15;
+        const ey1 = py + cell / 2 - d.dx * cell * 0.15 + d.dy * cell * 0.15;
+        const ex2 = px + cell / 2 - d.dy * cell * 0.15 + d.dx * cell * 0.15;
+        const ey2 = py + cell / 2 + d.dx * cell * 0.15 + d.dy * cell * 0.15;
+        ctx.beginPath(); ctx.arc(ex1, ey1, cell * 0.1, 0, Math.PI * 2); ctx.fill();
+        ctx.beginPath(); ctx.arc(ex2, ey2, cell * 0.1, 0, Math.PI * 2); ctx.fill();
+      }
+    }
+  };
+
+  drawSnake(ai, '255, 107, 107');
+  drawSnake(player, '65, 105, 225');
+  ctx.shadowBlur = 0;
+}
+
+window.addEventListener('load', init);
+
+</script>
+</body>
+</html>
